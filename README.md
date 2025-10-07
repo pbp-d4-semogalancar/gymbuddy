@@ -3,6 +3,8 @@
 ![Status](https://img.shields.io/badge/status-active-success)
 ![Built_with-Django-blue](https://img.shields.io/badge/Built_with-Django-blue)
 
+---
+
 # Anggota Kelompok D04
 - 2406358762	Riyaan Baihaqi
 - 2406347380	Dery Andreas Tampubolon
@@ -10,6 +12,8 @@
 - 2406495666	Rexy Adrian Fernando
 - 2406495760	Raihana Auni Zakia
 - 2406495501	Alderryl Juan Fauza
+
+---
 
 # Deskripsi Aplikasi
 Setiap orang memiliki alasan yang berbeda-beda untuk berolahraga, ada orang yang ingin tubuh lebih kuat, ada yang mengejar bentuk tubuh impian, dan ada juga yang sekadar ingin hidup lebih sehat. Namun, yang sama dari semua alasan itu adalah tantangan yang dihadapi saat ingin memulai. Banyak sekali orang yang kebingunan workout apa yang sebaiknya dilakukan, bagaimana cara melakukan workout tersebut dengan benar, dan bagaimana agar bisa tetap seimbang dan konsisten hingga mencapai target. Gymbuddy hadir untuk menjawab seluruh tantangan tersebut dengan menciptakan sistem workout yang terstruktur, fleksibel, dan mudah diikuti.
@@ -19,6 +23,8 @@ Mulailah rutinitas workout anda bersama gymbuddy. Dimulai dari memilih workout m
 Agar tidak bosan dengan workout yang itu-itu saja, fitur playlist hadir untuk pengguna yang ingin mengkombinasikan beberapa workout menjadi satu sesi workout yang baru. Tidak hanya itu, fitur planner juga membantu menyusun jadwal workout untuk seminggu atau sebulan kedepan agar tetap konsisten ditengah kesibukan lainnya. Gymbuddy juga memberikan tempat untuk saling bertanya, berbagi pengalaman, dan menemukan inspirasi melalui fitur community.  
 
 Sudah siap untuk mendapatkan tubuh yang lebih kuat, bentuk tubuh impian, atau hidup yang lebih sehat? Dengan gymbuddy target anda akan tercapai dengan lebih cepat dan mudah!
+
+---
 
 # Daftar Modul
 
@@ -46,8 +52,9 @@ Sudah siap untuk mendapatkan tubuh yang lebih kuat, bentuk tubuh impian, atau hi
 - Dikerjakan oleh Alderryl Juan Fauza 
 - Fitur Target memungkinkan anda menyusun target pribadi anda serta memantau progress dari setiap target. Dengan fitur anda, workout anda akan semakin lebih jelas, tertata, da progresif!
 
-# Dataset
+---
 
+# Dataset
 GymBuddy menggunakan dataset publik berupa kaggle berikut:
 
 - [**Gym Exercises Dataset (Kaggle)**](https://www.kaggle.com/datasets/rishitmurarka/gym-exercises-dataset) — *(author: rishitmurarka)*
@@ -60,6 +67,8 @@ GymBuddy menggunakan dataset publik berupa kaggle berikut:
 
   Dataset ini dibuat dengan *field* yang terdiri dari **nama kegiatan**, **deskripsi kegiatan**, hingga **waktu workout** agar mendukung produktivitas dan progress anda.
 
+---
+
 # Role Pengguna
 
 ## 1. Admin
@@ -67,6 +76,8 @@ GymBuddy menggunakan dataset publik berupa kaggle berikut:
 
 ## 2. User
 - User nantinya dapat melihat berbagai kegiatan workout yang dapat dilakukan beserta step by stepnya pada menu How To, membuat playlist kegiatan workout pada menu Playlist, menambahkan dan memantau kegiatan workout melalui menu Log, membuat planning bulanan melalui menu Planner, membuat target bulanan melalui menu Target, serta sharing rangkaian kegiatan melalui menu community.
+
+---
 
 # Link PWS dan Design
 
