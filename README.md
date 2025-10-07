@@ -1,5 +1,8 @@
 # GymBuddy 🏋🏽🔥💪🏼
 
+![Status](https://img.shields.io/badge/status-active-success)
+![Built_with-Django-blue](https://img.shields.io/badge/Built_with-Django-blue)
+
 # Anggota Kelompok D04
 - 2406358762	Riyaan Baihaqi
 - 2406347380	Dery Andreas Tampubolon
@@ -45,7 +48,17 @@ Sudah siap untuk mendapatkan tubuh yang lebih kuat, bentuk tubuh impian, atau hi
 
 # Dataset
 
-GymBuddy menggunakan dataset berupa kaggle berikut https://www.kaggle.com/datasets/rishitmurarka/gym-exercises-dataset (author: rishitmurarka) dengan mengutip berbagai data seperti jenis workout, equipment yang diperlukan, step by step kegiatan, serta target otot yang ingin dilatih. Dataset ini dibuat dengan field yang terdiri dari nama kegiatan, deskripsi kegiatan hingga waktu workout agar mendukung produktivitas dan progress anda.
+GymBuddy menggunakan dataset publik berupa kaggle berikut:
+
+- [**Gym Exercises Dataset (Kaggle)**](https://www.kaggle.com/datasets/rishitmurarka/gym-exercises-dataset) — *(author: rishitmurarka)*
+
+  Dataset ini berisi berbagai informasi mengenai aktivitas gym, seperti:
+  - 💪 Jenis workout  
+  - 🏋️‍♀️ Equipment yang diperlukan  
+  - 🧭 Langkah-langkah (step-by-step) kegiatan  
+  - 🎯 Target otot yang ingin dilatih
+
+  Dataset ini dibuat dengan *field* yang terdiri dari **nama kegiatan**, **deskripsi kegiatan**, hingga **waktu workout** agar mendukung produktivitas dan progress anda.
 
 # Role Pengguna
 
@@ -58,6 +71,7 @@ GymBuddy menggunakan dataset berupa kaggle berikut https://www.kaggle.com/datase
 # Link PWS dan Design
 
 Link PWS:
+https://rexy-adrian-gymbuddy.pbp.cs.ui.ac.id
 
 Link Design:
 https://www.figma.com/site/kRKfLGLbDnRMQVt4nmoD9x/Untitled?t=x4fUf1VtAwbLMl1G-0
