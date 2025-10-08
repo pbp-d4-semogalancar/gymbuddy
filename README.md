@@ -32,25 +32,25 @@ Sudah siap untuk mendapatkan tubuh yang lebih kuat, bentuk tubuh impian, atau hi
 - Dikerjakan oleh Wildan Muhammad Hafidz
 - Fitur How To memungkinkan anda untuk menjelajahi berbagai tutorial workout yang relevan sesuai jenis otot yang ingin dilatih. Dengan fitur ini, anda dapat memilih jenis workout sesuai kebutuhan sehingga tidak ada kata tidak untuk produktif!
 
-## Log 📋
-- Dikerjakan oleh Rexy Adrian Fernando
-- Fitur Log memungkinkan anda untuk membuat runtutan aktivitas workout bulanan anda sehingga anda lebih dapat memantau rangkaian aktivitas workout anda. Dengan fitur ini, anda dapat menilai progress serta memantau perkembangan rangkaian aktivitas anda.
-
-## Playlist ⏯️
-- Dikerjakan oleh Riyaan Baihaqi
-- Fitur Playlist memungkinkan anda untuk membuat runtutan kegiatan dengan waktu tertentu untuk mengukur produktivitas anda. Fitur ini memungkinkan anda untuk menggabungkan lebih dari satu kegiatan workout serta memasukkan rangkaian kegiatannya ke log.
-
-## Planner 🗓️
-- DIkerjakan oleh Raihana Auni Zakia
-- FItur Planner memungkinkan anda untuk menjadwalkan kegiatan anda dengan tampilan kalender. Dengan fitur ini, workout anda akan semakin tertata.
-
-## Community 👥
-- Dikerjakan oleh Dery Andreas Tampubolon
-- Fitur Community memungkinkan anda untuk berdiskusi mengenai kegiatan workout, seperti bertanya maupun sharing. Dengan fitur ini, anda dapat memperluas koneksi workout serta mempermudah rangkaian kegiatan workout anda melalui solusi dari pengguna lainnya.
-
-## Target 🎯
+## Progress ✅
 - Dikerjakan oleh Alderryl Juan Fauza 
-- Fitur Target memungkinkan anda menyusun target pribadi anda serta memantau progress dari setiap target. Dengan fitur anda, workout anda akan semakin lebih jelas, tertata, da progresif!
+- Modul **Progress** merupakan bagian dari fitur **log** yang memungkinkan anda menyusun target pribadi anda serta memantau progress. Dengan fitur ini, workout anda akan semakin lebih jelas, tertata, dan progresif!
+
+## To Do 🗓️
+- Dikerjakan oleh Riyaan Baihaqi
+- Modul **To Do** memungkinkan anda untuk membuat runtutan rencana untuk menunjang produktivitas anda. Modul ini memungkinkan anda untuk menyusun kegiatan workout serta memasukkan rangkaian kegiatannya ke **log**.
+
+## Profile 🤝
+- DIkerjakan oleh Rexy Adrian Fernando
+- Modul **Profile** memungkinkan anda untuk melakukan kostumisasi serta melihat profile orang lain. Modul ini memungkinkan anda mengenal lebih banyak orang sehingga membuka relasi lebih banyak.
+
+## Thread 📝
+- Dikerjakan oleh Dery Andreas Tampubolon
+- Modul **Thread** merupakan bagian dari fitur **community** memungkinkan anda bertanya maupun sharing dengan pengguna lainnya. Dengan fitur ini, anda dapat memahami lebih banyak kegiatan workout.
+
+## Reply 🌐
+- Dikerjakan oleh Raihana Auni Zakia
+- Modul **Reply** merupakan bagian dari fitur **community** memungkinkan anda untuk menjawab di community sekaligus sharing kegiatan workout anda. Dengan fitur ini, anda dapat membantu pengguna lainnya dalam kegiatan workout mereka.
 
 ---
 
