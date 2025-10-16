@@ -1,0 +1,231 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gymbuddy Community Discussion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .header-section { 
+            background-color: #343a40; 
+            padding: 80px 0; 
+            color: white; 
+            text-align: center;
+        }
+        .thread-card {
+            background-color: #6c757d; 
+            color: white;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .thread-content-body {
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="header-section">
+        <h1>Thread 📝 & Reply 🌐: Community Discussion</h1>
+        <p>Tanyakan untuk memahami lebih banyak kegiatan workout di sini!</p>
+        
+        {% if user.is_authenticated %}
+            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#newThreadModal">
+                + Buat Thread Diskusi Baru
+            </button>
+
+            <!-- Tombol Logout POST -->
+            <form action="{% url 'community:logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+
+        {% else %}
+            <p class="mt-3">Silakan <a href="{% url 'community:login' %}" class="text-warning">Login</a> untuk membuat thread.</p>
+        {% endif %}
+    </div>
+
+    <div class="container mt-5">
+        
+        {% url 'community:edit_thread_user' 99999 as edit_url_template %}
+        {% url 'community:delete_thread_user' 99999 as delete_url_template %}
+
+        <!-- ✅ Perbaikan bagian ini -->
+        <script>
+            const editUrlTemplate = "{{ edit_url_template }}";
+            const deleteUrlTemplate = "{{ delete_url_template }}";
+        </script>
+        <!-- ✅ Selesai perbaikan -->
+
+        {% if user_is_admin %}
+            <p class="text-end"><a href="{% url 'community:admin_list_threads' %}">Akses Admin Panel Thread</a></p>
+        {% endif %}
+        
+        <div id="thread-list">
+            {% for thread in threads %}
+                <div class="thread-card" id="thread-{{ thread.id }}">
+                    <h4>Thread: {{ thread.title }}</h4>
+                    <p class="thread-content-body">{{ thread.content }}</p> 
+                    <p>
+                        Reply: {{ thread.reply_count }} | Dikirim oleh {{ thread.user.username }} pada {{ thread.date_created|date:"M d, Y" }}
+                        {% if thread.user == request.user %}
+                            | 
+                            <a href="{% url 'community:edit_thread_user' thread.id %}" class="text-warning">Edit</a> | 
+                            <a href="#" class="text-danger delete-btn" data-thread-id="{{ thread.id }}">Hapus</a>
+                        {% endif %}
+                    </p>
+                </div>
+            {% empty %}
+                <p id="empty-message" class="text-center">Belum ada diskusi, ayo mulai thread pertama!</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="modal fade" id="newThreadModal" tabindex="-1" aria-labelledby="newThreadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newThreadModalLabel">Buat Thread Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="thread-form" onsubmit="return handleThreadSubmit(event);"> 
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">Judul Thread:</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.content.id_for_label }}" class="form-label">Isi Diskusi:</label>
+                            {{ form.content }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary">Kirim Thread</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // ====================================================================
+        // ✅ FIXED: CSRF Global Setup (Digunakan untuk semua AJAX)
+        // ====================================================================
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        // ====================================================================
+        // ✅ CREATE THREAD
+        // ====================================================================
+        function handleThreadSubmit(e) {
+            e.preventDefault(); 
+            const form = $('#thread-form');
+            
+            $.ajax({
+                type: 'POST', 
+                url: "{% url 'community:create_thread_ajax' %}", 
+                data: form.serialize(),
+                success: function(response) {
+                    console.log("Create Success Response:", response); 
+                    
+                    if (response.status === 'success') {
+                        $('#newThreadModal').modal('hide');
+                        form[0].reset();
+                        $('#empty-message').remove();
+                        
+                        const dynamicEditUrl = editUrlTemplate.replace('99999', response.thread_id);
+
+                        const newThreadHTML = `
+                            <div class="thread-card" id="thread-${response.thread_id}">
+                                <h4>Thread: ${response.thread_title} </h4>
+                                <p class="thread-content-body">${response.thread_content}</p> 
+                                <p>
+                                    Reply: 0 | Dikirim oleh ${response.thread_user} pada ${response.date_created}
+                                    ${response.is_owner ? `
+                                        | <a href="${dynamicEditUrl}" class="text-warning">Edit</a> 
+                                        | <a href="#" class="text-danger delete-btn" data-thread-id="${response.thread_id}">Hapus</a>
+                                    ` : ''}
+                                </p>
+                            </div>
+                        `;
+                        $('#thread-list').prepend(newThreadHTML); 
+                        alert('Thread berhasil dibuat!');
+                    } else {
+                        alert('Gagal membuat thread: ' + response.message);
+                    }
+                },
+                error: function(response) {
+                    console.error("AJAX Error:", response);
+                    alert('Gagal membuat thread. Status HTTP: ' + response.status);
+                }
+            });
+            
+            return false;
+        }
+
+        // ====================================================================
+        // ✅ DELETE THREAD
+        // ====================================================================
+        $(document).on('click', '.delete-btn', function(e) {
+            e.preventDefault(); 
+            const element = $(this);
+            const threadId = element.data('thread-id'); 
+
+            if (confirm('Apakah Anda yakin ingin menghapus thread ini?')) {
+                const dynamicDeleteUrl = deleteUrlTemplate.replace('99999', threadId);
+                
+                $.ajax({
+                    type: 'POST',
+                    url: dynamicDeleteUrl,
+                    data: {}, 
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            element.closest('.thread-card').remove(); 
+                            alert('Thread berhasil dihapus.');
+                            if ($('#thread-list').children().length === 0) {
+                                $('#thread-list').html('<p id="empty-message" class="text-center">Belum ada diskusi, ayo mulai thread pertama!</p>');
+                            }
+                        } else {
+                            alert('Gagal menghapus thread: ' + response.message);
+                        }
+                    },
+                    error: function(response) {
+                        console.error("Delete Error:", response.responseText);
+                        alert('Gagal menghapus thread. Status HTTP: ' + response.status);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
