@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'community',
 ]
 
 MIDDLEWARE = [
@@ -147,3 +148,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Arahkan ke halaman daftar thread setelah user berhasil login
+LOGIN_REDIRECT_URL = '/community/'
+
+# Arahkan ke halaman login setelah user logout
+LOGOUT_REDIRECT_URL = '/community/'
+
+# Beritahu Django URL mana yang harus digunakan untuk login
+LOGIN_URL = '/accounts/login/'

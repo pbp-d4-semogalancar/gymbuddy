@@ -1,0 +1,46 @@
+{% extends 'community/base.html' %}
+{% block content %}
+    <div class="card header-card" style="text-align: center;">
+        <h1 style="font-size: 2.5em;">Thread 📝 & Reply 🌐 : Community Discussion</h1>
+        <p>Tanyakan untuk memahami lebih banyak kegiatan workout di sini!</p>
+        <br>
+        
+        {% if user.is_authenticated %}
+            <p style="margin-bottom: 15px;">Selamat datang, <strong>{{ user.username }}</strong>!</p>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+                <button id="openCreateThreadModalBtn" class="btn">+ Buat Thread Diskusi Baru</button>
+                
+                <form action="{% url 'logout' %}" method="POST" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary">Logout</button>
+                </form>
+            </div>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary">Login untuk Berdiskusi</a>
+        {% endif %}
+        </div>
+
+    <div class="card">
+        <form method="GET" action="{% url 'community:thread_list' %}" style="display: flex; align-items: center; gap: 10px;">
+            <label for="sort-select">Urutkan Berdasarkan:</label>
+            <select name="sort" id="sort-select" onchange="this.form.submit()" style="padding: 5px; border-radius: 5px; background-color: #f0f2f5; border: 1px solid #ccd0d5;">
+                <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Terbaru</option>
+                <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Terlama</option>
+                <option value="most_replied" {% if current_sort == 'most_replied' %}selected{% endif %}>Paling Banyak Dibalas</option>
+                <option value="most_liked" {% if current_sort == 'most_liked' %}selected{% endif %}>Paling Disukai</option>
+            </select>
+        </form>
+    </div>
+    
+    <div id="thread-list-container">
+        {% for thread in threads %}
+            {% include 'community/partials/thread_card.html' with thread=thread user=user %}
+        {% empty %}
+            <div id="no-threads-yet" class="card"><p>Belum ada thread diskusi. Jadilah yang pertama!</p></div>
+        {% endfor %}
+    </div>
+
+    <div id="createThreadModal" class="modal-overlay"> <div class="modal-content"><span class="modal-close">&times;</span><h3>Buat Thread Baru</h3><form id="create-thread-form" action="{% url 'community:create_thread_ajax' %}" method="POST"><input type="text" name="title" placeholder="Judul Thread" required><textarea name="content" rows="5" placeholder="Isi thread..." required></textarea><button type="submit" class="btn btn-primary">Post Thread</button></form></div></div>
+    <div id="editThreadModal" class="modal-overlay"> <div class="modal-content"><span class="modal-close">&times;</span><h3>Edit Thread</h3><form id="edit-thread-form"><input type="hidden" id="edit-thread-id"><input type="text" id="edit-thread-title" name="title" required><textarea id="edit-thread-content" name="content" rows="5" required></textarea><button type="submit" class="btn btn-primary">Simpan Perubahan</button></form></div></div>
+    <div id="deleteConfirmModal" class="modal-overlay"> <div class="modal-content"><span class="modal-close">&times;</span><h3>Konfirmasi Penghapusan</h3><p>Apakah Anda yakin? Tindakan ini tidak dapat diurungkan.</p><div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;"><button class="btn cancel-delete-btn">Batal</button><button id="confirm-delete-btn" class="btn btn-danger">Ya, Hapus</button></div></div></div>
+{% endblock %}
