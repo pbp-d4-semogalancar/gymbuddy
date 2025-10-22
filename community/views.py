@@ -11,7 +11,7 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Thread, Reply
 from .forms import ThreadForm, ReplyForm
 
-def thread_list_view(request):
+def community_page_view(request):
     sort_option = request.GET.get('sort', 'newest')
     top_reply_subquery = Reply.objects.filter(thread=OuterRef('pk')).order_by('-date_created')
     threads = Thread.objects.annotate(
@@ -28,7 +28,7 @@ def thread_list_view(request):
         threads = threads.order_by('-date_created')
         
     context = {'threads': threads, 'current_sort': sort_option, 'thread_form': ThreadForm()}
-    return render(request, 'community/thread_list.html', context)
+    return render(request, 'community/community_page.html', context)
 
 def thread_detail_view(request, thread_id):
     thread = get_object_or_404(Thread, id=thread_id)

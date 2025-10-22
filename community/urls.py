@@ -4,7 +4,7 @@ from . import views
 app_name = 'community'
 
 urlpatterns = [
-    path('', views.thread_list_view, name='thread_list'),
+    path('', views.community_page_view, name='community_page'),
     path('create_ajax/', views.create_thread_ajax, name='create_thread_ajax'),
     path('thread/<int:thread_id>/', views.thread_detail_view, name='thread_detail'),
     path('thread/<int:thread_id>/edit/', views.edit_thread_ajax, name='edit_thread'),

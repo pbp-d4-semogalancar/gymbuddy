@@ -21,7 +21,7 @@
         </div>
 
     <div class="card">
-        <form method="GET" action="{% url 'community:thread_list' %}" style="display: flex; align-items: center; gap: 10px;">
+        <form method="GET" action="{% url 'community:community_page' %}" style="display: flex; align-items: center; gap: 10px;">
             <label for="sort-select">Urutkan Berdasarkan:</label>
             <select name="sort" id="sort-select" onchange="this.form.submit()" style="padding: 5px; border-radius: 5px; background-color: #f0f2f5; border: 1px solid #ccd0d5;">
                 <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Terbaru</option>
