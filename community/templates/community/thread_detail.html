@@ -29,7 +29,7 @@
         </div>
         <hr style="border-color: #e4e6eb; margin-top: 10px;">
         <div id="reply-section">
-            {% for reply in replies %}{% include "community/_reply.html" with reply=reply user=user %}{% empty %}
+            {% for reply in replies %}{% include "community/reply.html" with reply=reply user=user %}{% empty %}
                 <p id="no-replies-yet" style="text-align: center; padding: 20px; color: #f8f9fa;">Belum ada balasan.</p>
             {% endfor %}
         </div>

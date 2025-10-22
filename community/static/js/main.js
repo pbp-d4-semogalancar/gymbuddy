@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // --- UTILITY FUNCTIONS ---
     const getCsrfToken = () => document.querySelector('input[name=csrfmiddlewaretoken]')?.value || '';
 
     function showToast(message, type = 'success') {
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => toast.remove(), 5000);
     }
 
-    // --- MODAL CONTROLS ---
     const modals = {
         createThread: document.getElementById('createThreadModal'),
         editThread: document.getElementById('editThreadModal'),
@@ -25,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.modal-close, .cancel-delete-btn').forEach(btn => btn.onclick = () => hideModal(btn.closest('.modal-overlay')));
     window.onclick = (event) => { if (event.target.classList.contains('modal-overlay')) hideModal(event.target); };
 
-    // --- EVENT DELEGATION FOR ALL CLICKS ---
     document.body.addEventListener('click', async function(e) {
         const target = e.target;
         const csrfToken = getCsrfToken();

@@ -14,7 +14,7 @@
     <div class="nested-replies" id="children-of-{{ reply.id }}" style="border-left: none;">
         {% for child in reply.children.all %}
             <hr style="border-color: #e4e6eb; margin: 15px 0;">
-            {% include "community/_reply.html" with reply=child user=user %}
+            {% include "community/reply.html" with reply=child user=user %}
         {% endfor %}
     </div>
 </div>
