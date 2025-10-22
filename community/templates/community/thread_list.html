@@ -27,14 +27,13 @@
                 <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Terbaru</option>
                 <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Terlama</option>
                 <option value="most_replied" {% if current_sort == 'most_replied' %}selected{% endif %}>Paling Banyak Dibalas</option>
-                <option value="most_liked" {% if current_sort == 'most_liked' %}selected{% endif %}>Paling Disukai</option>
             </select>
         </form>
     </div>
     
     <div id="thread-list-container">
         {% for thread in threads %}
-            {% include 'community/partials/thread_card.html' with thread=thread user=user %}
+            {% include 'community/thread_card.html' with thread=thread user=user %}
         {% empty %}
             <div id="no-threads-yet" class="card"><p>Belum ada thread diskusi. Jadilah yang pertama!</p></div>
         {% endfor %}

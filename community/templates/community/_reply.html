@@ -1,0 +1,20 @@
+<div class="reply-card" id="reply-{{ reply.id }}" data-timestamp="{{ reply.date_created.timestamp }}">
+    <div class="post-header">
+        <span><a href="{% url 'community:profile' reply.user.username %}"><strong>{{ reply.user.username }}</strong></a><small style="color:#f8f9fa;"> · {{ reply.date_created|date:"d M Y" }}</small></span>
+    </div>
+    <div class="post-body reply-content"><p>{{ reply.content|linebreaks }}</p></div>
+    <div class="post-meta" style="border: none; padding-top: 5px;">
+        <span class="meta-actions">
+            {% if user.is_authenticated %}
+                <a href="#" class="reply-to-btn" data-parent-id="{{ reply.id }}">Balas</a>
+            {% endif %}
+            {% if user == reply.user %}<a class="edit-reply-btn" data-reply-id="{{ reply.id }}" data-content="{{ reply.content }}">Edit</a><a class="delete-link delete-reply-btn" data-reply-id="{{ reply.id }}">Hapus</a>{% endif %}
+        </span>
+    </div>
+    <div class="nested-replies" id="children-of-{{ reply.id }}" style="border-left: none;">
+        {% for child in reply.children.all %}
+            <hr style="border-color: #e4e6eb; margin: 15px 0;">
+            {% include "community/_reply.html" with reply=child user=user %}
+        {% endfor %}
+    </div>
+</div>

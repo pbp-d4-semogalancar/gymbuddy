@@ -6,34 +6,31 @@
 
     <div class="card" id="thread-{{ thread.id }}">
         <div class="post-header">
-            <h1 style="font-size: 1.8em; margin-bottom: 5px;">{{ thread.title }}</h1>
-            <span style="color: #65676b;">Oleh <a href="{% url 'community:profile' thread.author.username %}">{{ thread.author.username }}</a> pada {{ thread.created_at|date:"d F Y, H:i" }}</span>
+            <h1 style="font-size: 1.8em;">{{ thread.title }}</h1>
+            <span style="color: #f8f9fa;">Oleh <a href="{% url 'community:profile' thread.user.username %}">{{ thread.user.username }}</a> pada {{ thread.date_created|date:"d F Y, H:i" }}</span>
         </div>
         <hr style="border-color: #e4e6eb;">
-        <div class="post-body"><p>{{ thread.content|linebreaks }}</p></div>
-        <div class="post-meta">
-            <span>Likes: <span class="like-count">{{ thread.total_likes }}</span></span>
-            <span class="meta-actions">
-                {% if user.is_authenticated %}<a href="#" class="like-thread-btn {% if user in thread.likes.all %}liked{% endif %}" data-thread-id="{{ thread.id }}">Suka</a>{% endif %}
-                {% if user == thread.author %}<a href="#" class="edit-thread-btn" data-thread-id="{{ thread.id }}" data-title="{{ thread.title }}" data-content="{{ thread.content }}">Edit</a><a href="#" class="delete-link delete-thread-btn" data-thread-id="{{ thread.id }}">Hapus</a>{% endif %}
-            </span>
-        </div>
+        <div class="post-body"><p>{{ thread.content }}</p></div>
+        
     </div>
 
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <h3>Replies</h3>
-            <select id="reply-sort-select" style="padding: 5px; border-radius: 5px; background-color: #f0f2f5; border: 1px solid #ccd0d5;">
-                <option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="most_liked">Paling Disukai</option>
-            </select>
-        </div>
-        <div style="text-align: right; margin-top: 15px;">
-             {% if user.is_authenticated %}<button class="btn btn-primary reply-to-btn" data-parent-id="">Tambah Balasan</button>{% endif %}
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+                {% if user.is_authenticated %}
+                    <button class="btn btn-primary reply-to-btn" data-parent-id="">Tambah Balasan</button>
+                {% endif %}
+                <select id="reply-sort-select" style="padding: 5px; border-radius: 5px; background-color: #f0f2f5; border: 1px solid #ccd0d5;">
+                    <option value="newest">Terbaru</option>
+                    <option value="oldest">Terlama</option>
+                </select>
+            </div>
         </div>
         <hr style="border-color: #e4e6eb; margin-top: 10px;">
         <div id="reply-section">
-            {% for reply in replies %}{% include "community/partials/_reply.html" with reply=reply user=user %}{% empty %}
-                <p id="no-replies-yet" style="text-align: center; padding: 20px; color: #65676b;">Belum ada balasan.</p>
+            {% for reply in replies %}{% include "community/_reply.html" with reply=reply user=user %}{% empty %}
+                <p id="no-replies-yet" style="text-align: center; padding: 20px; color: #f8f9fa;">Belum ada balasan.</p>
             {% endfor %}
         </div>
     </div>

@@ -87,22 +87,6 @@ document.addEventListener('DOMContentLoaded', function() {
             hideModal(modals.deleteConfirm);
         }
 
-        const likeBtn = target.closest('.like-btn, .like-thread-btn');
-        if (likeBtn) {
-            e.preventDefault();
-            const isThread = likeBtn.classList.contains('like-thread-btn');
-            const id = isThread ? likeBtn.dataset.threadId : likeBtn.dataset.replyId;
-            const url = isThread ? `/community/thread/${id}/like/` : `/community/reply/${id}/like/`;
-            const response = await fetch(url, { method: 'POST', headers: {'X-CSRFToken': csrfToken} });
-            if (response.ok) {
-                const data = await response.json();
-                const container = likeBtn.closest('.post-meta');
-                if (container) {
-                    container.querySelector('.like-count').textContent = data.total_likes;
-                }
-                likeBtn.classList.toggle('liked', data.liked);
-            }
-        }
     });
 
     // --- FORM SUBMISSIONS (AJAX) ---
@@ -199,11 +183,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const replySection = document.getElementById('reply-section');
             const replies = Array.from(replySection.children).filter(el => el.classList.contains('reply-card'));
             replies.sort((a, b) => {
-                if (sortBy === 'most_liked') {
-                    return parseInt(b.dataset.likes, 10) - parseInt(a.dataset.likes, 10);
-                } else if (sortBy === 'oldest') {
+                if (sortBy === 'oldest') {
                     return parseInt(a.dataset.timestamp, 10) - parseInt(b.dataset.timestamp, 10);
-                } else { // newest
+                } else {
                     return parseInt(b.dataset.timestamp, 10) - parseInt(a.dataset.timestamp, 10);
                 }
             });
