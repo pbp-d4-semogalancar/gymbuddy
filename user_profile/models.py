@@ -5,45 +5,42 @@ from django.contrib.auth.models import User
 
 class Profile(models.Model):
     CATEGORY_CHOICES = [
-        # 🏃‍♂️ Individu
-        ('atletik', 'Atletik'),
-        ('renang', 'Renang'),
-        ('bersepeda', 'Bersepeda'),
-        ('panjat-tebing', 'Panjat Tebing'),
-        ('golf', 'Golf'),
-        ('tenis', 'Tenis'),
-        ('badminton', 'Badminton'),
-        ('panahan', 'Panahan'),
-        ('bela-diri', 'Bela Diri'),
+        # Latihan Beban / Strength
+        ('bench-press', 'Bench Press (Dada)'),
+        ('push-up', 'Push-up (Dada / Lengan)'),
+        ('pull-up', 'Pull-up (Punggung / Lengan)'),
+        ('deadlift', 'Deadlift (Punggung / Kaki)'),
+        ('squat', 'Squat'),
+        ('lunges', 'Lunges'),
+        ('shoulder-press', 'Shoulder Press'),
+        ('bicep-curl', 'Bicep Curl'),
+        ('tricep-dips', 'Tricep Dips'),
 
-        # ⚽ Tim
-        ('sepak-bola', 'Sepak Bola'),
-        ('futsal', 'Futsal'),
-        ('basket', 'Basket'),
-        ('voli', 'Voli'),
-        ('hoki', 'Hoki'),
-        ('baseball', 'Baseball'),
-        ('softball', 'Softball'),
-        ('rugbi', 'Rugbi'),
+        # Kardio
+        ('running', 'Lari (Running)'),
+        ('treadmill', 'Treadmill'),
+        ('cycling', 'Bersepeda (Cycling)'),
+        ('rowing', 'Rowing'),
+        ('jump-rope', 'Lompat Tali (Jump Rope)'),
 
-        # 🧘 Kebugaran
-        ('gym', 'Gym / Fitness'),
+        # Fungsional & Kalistenik
+        ('plank', 'Plank'),
+        ('mountain-climber', 'Mountain Climber'),
+        ('box-jump', 'Box Jump'),
+        ('kettlebell-swing', 'Kettlebell Swing'),
 
-        # 🚵 Alam & Petualangan
-        ('hiking', 'Hiking'),
-        ('diving', 'Diving'),
-
-        # ❄️ Musim Dingin
-        ('ski', 'Ski'),
-        ('snowboard', 'Snowboard'),
-        ('ice-skating', 'Ice Skating'),
+        # Fleksibilitas & Kelas
+        ('yoga', 'Yoga'),
+        ('pilates', 'Pilates'),
+        ('stretching', 'Peregangan (Stretching)'),
+        ('zumba', 'Zumba / Aerobik'),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     display_name = models.CharField(max_length=40, unique=True)
     bio = models.TextField(blank=True)
     profile_picture = models.URLField(blank=True, null=True)
-    favorite_sports = models.CharField(max_length=255, blank=True, default='')
+    favorite_workout = models.CharField(max_length=255, blank=True, default='')
     
 
     def __str__(self):
