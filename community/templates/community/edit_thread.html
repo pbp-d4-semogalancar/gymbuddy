@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Edit Thread: {{ thread.title }}</h2>
+        <h2 id="edit-title">Edit Thread: {{ thread.title }}</h2>
         <p>Anda mengedit thread milik sendiri ({{ thread.user.username }}).</p>
         <hr>
         
@@ -26,9 +26,66 @@
                 {{ form.content }}
             </div>
             
-            <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+            <button type="submit" class="btn btn-success">Simpan Perubahan (AJAX)</button>
             <a href="{% url 'community:show_community' %}" class="btn btn-secondary">Batal</a>
         </form>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        // Memastikan token CSRF disiapkan (sama seperti di community_page.html)
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        $(document).ready(function() {
+            const form = $('form');
+            // URL saat ini (misalnya /community/edit/123/)
+            const url = window.location.pathname; 
+            const csrftoken = getCookie('csrftoken');
+
+            form.on('submit', function(e) {
+                e.preventDefault();
+                
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: form.serialize(),
+                    headers: { 
+                        'X-Requested-With': 'XMLHttpRequest', // Tanda bahwa ini AJAX
+                        'X-CSRFToken': csrftoken // Kirim CSRF Token
+                    }, 
+                    success: function(response) {
+                        if (response.success) {
+                            alert('✅ Thread berhasil diperbarui!');
+                            
+                            // Aksi setelah sukses: Redirect kembali ke halaman utama
+                            window.location.href = "{% url 'community:show_community' %}";
+                            
+                    
+
+                        } else {
+                            // Tangani error form validation
+                            alert('Gagal menyimpan perubahan. Cek isian form: ' + JSON.stringify(response.error));
+                        }
+                    },
+                    error: function(response) {
+                        alert('Gagal menyimpan perubahan. Status HTTP: ' + response.status);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

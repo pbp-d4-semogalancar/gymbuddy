@@ -1,8 +1,7 @@
 from django.urls import path 
 from . import views
-from django.contrib.auth import views as auth_views  # <<< import benar
-# Hapus baris ini:
-# from django.contrib.auth import views as SignUpView
+from django.contrib.auth import views as auth_views  
+
 from django.contrib.auth.views import LogoutView, LoginView
 
 
@@ -17,11 +16,6 @@ urlpatterns = [
     path('edit/<int:thread_id>/', views.edit_thread_user, name='edit_thread_user'), # [U]
     path('delete/<int:thread_id>/', views.delete_thread_user, name='delete_thread_user'), # [D]
     
-    # --- SISI ADMIN MANUAL URLS ---
-    path('admin_panel/', views.admin_list_threads, name='admin_list_threads'), # [R] Daftar Admin
-    path('admin_panel/edit/<int:thread_id>/', views.admin_edit_thread, name='admin_edit_thread'), # [U] Admin
-    path('admin_panel/delete/<int:thread_id>/', views.admin_delete_thread, name='admin_delete_thread'), # [D] Admin
-
     # Login / Logout (pakai halaman custom login)
     path('login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
 

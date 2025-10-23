@@ -9,6 +9,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import logout
 from django.urls import reverse
 from django.contrib.auth.forms import AuthenticationForm
+from django.template.loader import render_to_string
 
 
 from .models import Thread
@@ -56,7 +57,6 @@ def show_community(request):
     }
     return render(request, 'community/community_page.html', context)
 
-
 # [C] - CREATE: Membuat Thread Baru via AJAX
 @login_required
 @csrf_exempt
@@ -83,26 +83,43 @@ def create_thread_ajax(request):
 
     return HttpResponse(status=405)  # Method Not Allowed
 
-
 # [U] - UPDATE: Mengedit Thread Milik Sendiri
 @login_required
 def edit_thread_user(request, thread_id):
     thread = get_object_or_404(Thread, id=thread_id)
 
-    # Hanya pemilik thread yang bisa edit
+    # Hanya pemilik thread yang boleh edit
     if thread.user != request.user:
-        return HttpResponse("Anda tidak memiliki izin untuk mengedit thread ini.", status=403)
+        # Mengembalikan JSON jika terjadi kegagalan otorisasi
+        return JsonResponse({'success': False, 'error': 'Anda tidak memiliki izin untuk mengedit thread ini.'}, status=403)
 
     if request.method == 'POST':
         form = ThreadForm(request.POST, instance=thread)
         if form.is_valid():
-            form.save()
+            updated_thread = form.save() # Simpan perubahan
+
+            # FIX: Deteksi AJAX dan kembalikan JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'title': updated_thread.title,
+                    'content': updated_thread.content,
+                    'thread_id': updated_thread.id
+                })
+
+            # FALLBACK: Jika non-AJAX (tidak terjadi jika script berjalan), lakukan redirect
             return redirect('community:show_community')
+
+        else:
+            # Mengembalikan error validasi form dalam JSON jika request adalah AJAX
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': form.errors}, status=400)
+
     else:
         form = ThreadForm(instance=thread)
 
+    # Mengembalikan form HTML jika request adalah GET
     return render(request, 'community/edit_thread.html', {'form': form, 'thread': thread})
-
 
 # [D] - DELETE: Menghapus Thread Milik Sendiri
 @login_required
@@ -115,43 +132,6 @@ def delete_thread_user(request, thread_id):
 
     thread.delete()
     return JsonResponse({'status': 'success', 'message': 'Thread berhasil dihapus.'}, status=200)
-
-
-# ==============================================================================
-#                      FITUR KOMUNITAS - SISI ADMIN
-# ==============================================================================
-
-# [R] - READ: Daftar Semua Thread untuk Admin Panel
-@user_passes_test(is_staff_user)
-def admin_list_threads(request):
-    threads = Thread.objects.all().order_by('-date_created')
-    context = {'threads': threads}
-    return render(request, 'community/admin_thread_list.html', context)
-
-
-# [U] - UPDATE: Mengedit Thread (oleh Admin)
-@user_passes_test(is_staff_user)
-def admin_edit_thread(request, thread_id):
-    thread = get_object_or_404(Thread, id=thread_id)
-
-    if request.method == 'POST':
-        form = ThreadForm(request.POST, instance=thread)
-        if form.is_valid():
-            form.save()
-            return redirect('community:admin_list_threads')
-    else:
-        form = ThreadForm(instance=thread)
-
-    return render(request, 'community/admin_edit_thread.html', {'form': form, 'thread': thread})
-
-
-# [D] - DELETE: Menghapus Thread (oleh Admin)
-@user_passes_test(is_staff_user)
-@require_POST
-def admin_delete_thread(request, thread_id):
-    thread = get_object_or_404(Thread, id=thread_id)
-    thread.delete()
-    return JsonResponse({'status': 'success', 'message': 'Thread berhasil dihapus oleh admin.'}, status=200)
 
 def user_logout(request):
     if request.method == 'POST':
