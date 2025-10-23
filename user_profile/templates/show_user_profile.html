@@ -4,29 +4,52 @@
 {% block title %}Profil {{ user_profile.display_name }}{% endblock %}
 
 {% block content %}
+{% include 'navbar.html' %}
 <div class="min-h-screen bg-gray-100 flex items-center justify-center p-6">
     <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-3xl">
 
-        <!-- PROFILE PICTURE -->
-        <div class="flex flex-col items-center text-center p-10 mb-8 border-b border-gray-200">
-            {% if user_profile.profile_picture %}
-            <img src="{{ user_profile.profile_picture.url }}" alt="Foto Profil {{ user_profile.display_name }}"
-                class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5">
-            {% else %}
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" alt="Foto Profil {{ user_profile.display_name }}"
-                class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-            </svg>
-            {% endif %}
+        <!-- PROFILE SECTION -->
+        <div class="flex flex-col md:flex-row items-center md:items-start p-10 mb-8 border-b border-gray-200 gap-8">
+            
+            <!-- Kiri: Foto Profil -->
+            <div class="flex-shrink-0">
+                {% if user_profile.profile_picture %}
+                <img src="{{ user_profile.profile_picture.url }}" alt="Foto Profil {{ user_profile.display_name }}"
+                    class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-0">
+                {% else %}
+                <img src="{% static 'images/default-avatar.png' %}"
+                    class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-0">
+                {% endif %}
+            </div>
 
-            <h2 class="text-4xl font-bold mb-1 text-gray-800">
-                {{ user_profile.display_name }}
-            </h2>
-            <p class="text-lg font-normal text-gray-500">
-                @{{ user_profile.user.username }}
-            </p>
+            <!-- Kanan: Nama, Username, Tombol -->
+            <div class="flex flex-col justify-between flex-1">
+                <!-- Nama & Username -->
+                <div class="mb-4 text-center md:text-left">
+                    <h2 class="text-4xl font-bold text-gray-800">
+                        {{ user_profile.display_name }}
+                    </h2>
+                    <p class="text-lg font-normal text-gray-500">
+                        @{{ user_profile.user.username }}
+                    </p>
+                </div>
+
+                <!-- Tombol Edit & Delete -->
+                {% if request.user == user_profile.user %}
+                <div class="flex justify-end gap-3">
+                    <a href="{% url 'user_profile:edit_profile' %}"
+                        class="flex-1 bg-gray-800 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
+                        Edit Profil
+                    </a>
+
+                    <a href="{% url 'user_profile:delete_profile' user_profile.user.id user_profile.user.username %}"
+                        onclick="return confirm('Yakin ingin menghapus profil ini?');"
+                        class="flex-1 bg-gray-800 hover:bg-red-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
+                        Delete Profil
+                    </a>
+                </div>
+                {% endif %}
+            </div>
         </div>
 
         <!-- BIO -->
@@ -35,11 +58,11 @@
                 Bio
             </h3>
             {% if user_profile.bio %}
-            <p class="text-base text-gray-600 leading-relaxed">
+            <p class="text-base text-gray-600 leading-relaxed break-words">
                 {{ user_profile.bio }}
             </p>
             {% else %}
-            <p class="text-base text-gray-600 leading-relaxed italic">
+            <p class="text-base text-gray-600 leading-relaxed italic break-words">
                 Belum menulis bio.
             </p>
             {% endif %}
@@ -51,11 +74,11 @@
                 Workout Favorit
             </h3>
             {% if user_profile.favorite_workouts %}
-            <div class="flex flex-wrap justify gap-2">
+            <div class="flex flex-wrap gap-2 font-medium w-full max-w-3xl mx-auto">
                 {% for choice in user_profile.favorite_workouts %}
                 {% for value, label in user_profile.CATEGORY_CHOICES %}
                 {% if value == choice %}
-                <span class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                <span class="bg-gray-800 text-white px-4 py-3 rounded-lg text-sm font-medium">
                     {{ label }}
                 </span>
                 {% endif %}
@@ -66,21 +89,6 @@
             <p class="text-gray-500 italic">Belum memilih latihan favorit.</p>
             {% endif %}
         </div>
-
-        {% if request.user == user_profile.user %}
-        <div class="text-center">
-            <a href="{% url 'user_profile:edit_profile' %}"
-                class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg transition duration-200">
-                Edit Profil
-            </a>
-
-            <a href="{% url 'user_profile:delete_profile' %}"
-                class="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-lg transition duration-200"
-                onclick="return confirm('Yakin ingin menghapus profil ini?');">
-                Delete Profil
-            </a>
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

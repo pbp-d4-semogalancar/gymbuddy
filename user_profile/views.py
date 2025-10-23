@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib import messages
+from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
+from django.urls import reverse
 from .forms import ProfileForm
 from .models import Profile
-from django.contrib.auth.models import User
-from django.http import Http404
 
 @login_required
 def create_profile(request):
@@ -20,14 +21,13 @@ def create_profile(request):
             profile.save()
             messages.success(request, "Profil berhasil dibuat!")
             return redirect('user_profile:detail_profile',
-                            user_id=request.user.id, username=request.user.usernam)
+                            user_id=request.user.id, username=request.user.username)
     else:
         form = ProfileForm()
 
     context = {
         'form': form,
-        'title': 'Buat Profil Baru',
-        'button_label': 'Buat Profil'
+        'user_profile': profile
     }
     return render(request, 'create_user_profile.html', context)
 
@@ -51,10 +51,9 @@ def edit_profile(request):
 
     context = {
         'form': form,
-        'title': 'Edit Profil',
-        'button_label': 'Simpan Perubahan'
+        'user_profile': profile
     }
-    return render(request, 'create_user_profile.html', context)
+    return render(request, 'edit_user_profile.html', context)
 
 @login_required
 def detail_profile(request, user_id, username):
@@ -72,8 +71,12 @@ def detail_profile(request, user_id, username):
     return render(request, 'show_user_profile.html', context)
 
 @login_required
-def delete_profile(request):
-    profile = get_object_or_404(Profile, user=request.user)
+def delete_profile(request, user_id, username):
+    profile = get_object_or_404(Profile, user__id=user_id, user__username=username)
+
+    if request.user != profile.user:
+        return HttpResponseForbidden("Kamu tidak boleh menghapus profil orang lain!")
+
     profile.delete()
     messages.success(request, "Profil berhasil dihapus.")
     return redirect('landing_page:landing_page')

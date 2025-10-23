@@ -4,24 +4,32 @@
 {% block title %}Buat Profil - Gymbuddy{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-center text-green-600 mb-6">Buat Profil Baru</h2>
-
-        {% if messages %}
-            {% for message in messages %}
-                <p class="text-center text-{{ message.tags }}-600 mb-3">{{ message }}</p>
-            {% endfor %}
-        {% endif %}
+{% include 'navbar.html' %}
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+    <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-3xl">
+        <h2 class="text-4xl font-bold mb-1 text-gray-800 text-center">
+            Lengkapi Profilmu
+        </h2>
 
         <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
 
+            <!-- Preview Foto Profil -->
+            <div class="flex flex-col items-center text-center p-10 mb-8 border-b border-gray-200">
+                <img id="profile-preview"
+                    src="{% static 'images/default-avatar.png' %}" 
+                    class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5 cursor-pointer"
+                    alt="Preview Profile">
+                <!-- Input file -->
+                <input type="file" name="profile_picture" id="id_profile_picture" class="hidden">
+            </div>
+
             <!-- Display Name -->
             <div>
-                <label for="{{ form.display_name.id_for_label }}" class="block text-gray-700 font-semibold mb-1">
-                    {{ form.display_name.label }}
-                </label>
+                <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">
+                    Display Name
+                </h3>
+
                 {{ form.display_name }}
                 {% if form.display_name.errors %}
                     <p class="text-red-500 text-sm mt-1">{{ form.display_name.errors }}</p>
@@ -30,54 +38,80 @@
 
             <!-- Bio -->
             <div>
-                <label for="{{ form.bio.id_for_label }}" class="block text-gray-700 font-semibold mb-1">
-                    {{ form.bio.label }}
-                </label>
+                <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">
+                    Bio
+                </h3>
                 {{ form.bio }}
                 {% if form.bio.errors %}
                     <p class="text-red-500 text-sm mt-1">{{ form.bio.errors }}</p>
                 {% endif %}
             </div>
 
-            <!-- Profile Picture -->
             <div>
-                <label for="{{ form.profile_picture.id_for_label }}" class="block text-gray-700 font-semibold mb-1">
-                    {{ form.profile_picture.label }}
-                </label>
-                {{ form.profile_picture }}
-                {% if form.profile_picture.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ form.profile_picture.errors }}</p>
-                {% endif %}
-            </div>
-
-            <!-- Favorite Workouts (Scrollable Checkbox List) -->
-            <div>
-                <label class="block text-gray-700 font-semibold mb-2">
-                    {{ form.favorite_workouts.label }}
-                </label>
-
-                <div class="border rounded-lg p-3 bg-gray-50 max-h-48 overflow-y-auto space-y-2">
+                <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">
+                    Workout Favorit
+                </h3>
+                <div class="flex flex-wrap justify gap-2">
                     {% for value, label in form.favorite_workouts.field.choices %}
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="{{ form.favorite_workouts.name }}" value="{{ value }}"
-                                class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                                {% if value in form.favorite_workouts.value %}checked{% endif %}>
-                            <span class="text-gray-700">{{ label }}</span>
-                        </label>
+                    <label class="cursor-pointer p-3 border rounded-lg flex items-center justify-center text-center transition duration-200
+                        {% if value in form.favorite_workouts.value %}
+                            bg-gray-800 border-gray-800 text-white
+                        {% else %}
+                            bg-gray border-gray-800 text-gray-800 hover:bg-gray-200
+                        {% endif %}">
+                        <input type="checkbox" name="{{ form.favorite_workouts.name }}" value="{{ value }}" class="hidden"
+                            {% if value in form.favorite_workouts.value %}checked{% endif %}>
+                        <span class="font-medium">{{ label }}</span>
+                    </label>
                     {% endfor %}
                 </div>
-
-                {% if form.favorite_workouts.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ form.favorite_workouts.errors }}</p>
-                {% endif %}
             </div>
 
             <!-- Submit -->
             <button type="submit"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition duration-200">
-                Buat Profil
+                class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 rounded-lg transition duration-200">
+                Simpan Profil
             </button>
         </form>
     </div>
 </div>
+
+<script>
+    const input = document.getElementById("id_profile_picture");
+    const preview = document.getElementById("profile-preview");
+
+    // Klik preview = buka file dialog
+    preview.addEventListener("click", () => input.click());
+
+    // Preview real-time
+    input.addEventListener("change", function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.querySelectorAll('label').forEach(label => {
+        const checkbox = label.querySelector('input[type="checkbox"]');
+
+        label.addEventListener('click', () => {
+            setTimeout(() => {  // pakai timeout agar checkbox update dulu
+                if(checkbox.checked){
+                    label.classList.add('bg-gray-800', 'text-white');
+                    label.classList.remove('bg-gray', 'text-gray-800', 'hover:bg-gray-200');
+                } else {
+                    label.classList.remove('bg-gray-800', 'text-white');
+                    label.classList.add('bg-gray', 'text-gray-800', 'hover:bg-gray-200');
+                }
+            }, 0);
+        });
+    });
+
+</script>
+
+
 {% endblock %}

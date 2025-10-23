@@ -1,28 +1,107 @@
 <nav class="w-full bg-white border-b border-gray-200 shadow-sm">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-        <a class="text-2xl font-bold text-gray-900" href="/">GymBuddy</a>
-        
-        <ul class="hidden md:flex items-center space-x-6">
-            <li><a href="#" class="text-gray-600 hover:text-gray-900 font-semibold">Thread</a></li>
-            <li><a href="{% url 'gym_log_page' %}" class="text-gray-600 hover:text-gray-900 font-semibold">To Do</a></li>
-            <li><a href="#" class="text-gray-600 hover:text-gray-900 font-semibold">Progress</a></li>
-            <li><a href="#" class="text-gray-600 hover:text-gray-900 font-semibold">Profile</a></li>
-        </ul>
-        
-        <div class="flex items-center space-x-2">
-            {% if user.is_authenticated %}
-                <span class="text-gray-700 font-medium">Halo, {{ user.username }}</span>
-                <a href="#" class="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
-                    Keluar
-                </a>
-            {% else %}
-                <a href="#" class="px-4 py-2 text-sm font-semibold text-gray-700 rounded-md hover:bg-gray-100">
-                    Masuk
-                </a>
-                <a href="#" class_exists="bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-md hover:bg-gray-700">
-                    Daftar
-                </a>
-            {% endif %}
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex justify-between items-center">
+            
+            <a class="text-2xl font-bold" href="/">
+                <span class="text-gray-500">Gym</span><span class="text-gray-900">Buddy</span>
+            </a>
+            
+            <div class="hidden md:flex items-center space-x-6">
+                <ul class="flex items-center space-x-6">
+                    <li><a href="#" class="text-gray-600 hover:text-gray-900 font-semibold">How To</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-gray-900 font-semibold">Log Aktivitas</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-gray-900 font-semibold">Komunitas</a></li>
+                </ul>
+                <div class="w-px h-6 bg-gray-300"></div>
+                <div class="flex items-center space-x-2">
+                    {% if user.is_authenticated %}
+                        {% if user.user_profile %}
+                            <a href="{% url 'user_profile:detail_profile' user.id user.username %}"
+                            class="bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-md hover:bg-gray-700 transition-colors">
+                                Halo, {{ user.username }}
+                            </a>
+                        {% else %}
+                            <a href="{% url 'user_profile:create_profile' %}"
+                            class="bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-md hover:bg-gray-700 transition-colors">
+                                Halo, {{ user.username }}
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'authentication:logout_user' %}" 
+                        class="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
+                            Keluar
+                        </a>
+                    {% else %}
+                        <a href="{% url 'authentication:login_user' %}" 
+                           class="px-4 py-2 text-sm font-semibold text-gray-700 rounded-md hover:bg-gray-100">
+                            Masuk
+                        </a>
+                        <a href="{% url 'authentication:register_user' %}" 
+                           class="bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-md hover:bg-gray-700">
+                            Daftar
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-900 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
+
+        <div id="mobile-menu" class="hidden md:hidden mt-4">
+            <ul class="space-y-2">
+                <li><a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">How To</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Log Aktivitas</a></li>
+                <li><a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Komunitas</a></li>
+            </ul>
+            <hr class="my-4 border-gray-200">
+            <div class="space-y-2">
+                {% if user.is_authenticated %}
+                    {% if user.user_profile %}
+                        <a href="{% url 'user_profile:detail_profile' user.id user.username %}" class="block px-3 py-2 text-base font-medium text-gray-700">
+                            Halo, {{ user.username }}
+                        </a>
+                    {% else %}
+                        <a href="{% url 'user_profile:create_profile' %}" class="block px-3 py-2 text-base font-medium text-gray-700">
+                            Halo, {{ user.username }}
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'authentication:logout_user' %}" 
+                       class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100 border">
+                        Keluar
+                    </a>
+                {% else %}
+                    <a href="{% url 'authentication:login_user' %}" 
+                       class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">
+                        Masuk
+                    </a>
+                    <a href="{% url 'authentication:register_user' %}" 
+                       class="block w-full text-center bg-gray-900 text-white px-3 py-2 rounded-md text-base font-semibold hover:bg-gray-700">
+                        Daftar
+                    </a>
+                {% endif %}
+            </div>
         </div>
+    </div>
 </nav>
+<nav class="w-full bg-white border-b border-gray-200 shadow-sm">
+    </nav>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      
+      const menuButton = document.getElementById('mobile-menu-button');
+      const menu = document.getElementById('mobile-menu');
+
+      if (menuButton && menu) {
+          menuButton.addEventListener('click', function() {
+              menu.classList.toggle('hidden');
+          });
+      }
+
+  });
+</script>
