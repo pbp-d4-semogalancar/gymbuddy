@@ -1,0 +1,55 @@
+<form 
+    id="add-target-form"
+    action="{% url 'workoutlog:ajax_add_target' %}" 
+    method="POST">
+    
+    {% csrf_token %}
+    <h3 class="text-xl font-bold text-gray-900 mb-4">Add New Workout Plan</h3>
+
+    <div>
+        <label for="filter-muscle" class="block text-sm font-medium text-gray-700 mb-1">Target Muscle:</label>
+        <select id="filter-muscle" name="target_muscle" 
+                class="{{ form.activity.field.widget.attrs.class }}">
+            <option value="">-- All Muscles --</option>
+            {% for muscle in target_muscles %}
+                <option value="{{ muscle }}">{{ muscle }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="mt-4">
+        <label for="select-exercise" class="block text-sm font-medium text-gray-700 mb-1">Activity Name:</label>
+        {{ form.activity }}
+    </div>
+
+    <div class="mt-4">
+        <label for="id_reps" class="block text-sm font-medium text-gray-700 mb-1">Reps:</label>
+        {{ form.reps }}
+    </div>
+    
+    <div class="mt-4">
+        <label for="id_planned_date" class="block text-sm font-medium text-gray-700 mb-1">Date:</label>
+        {{ form.planned_date }}
+    </div>
+    
+    <div class="mt-6">
+        <button type="submit" class="w-full bg-gray-900 text-white font-semibold py-3 px-4 rounded-lg">
+            Add Plan
+        </button>
+    </div>
+</form>
+
+<script>
+    document.getElementById('filter-muscle').addEventListener('change', async function() {
+        const muscle = this.value;
+        const url = `{% url 'workoutlog:ajax_filter_activities' %}?target_muscle=${muscle}`;
+        
+        try {
+            const response = await fetch(url);
+            const optionsHtml = await response.text();
+            document.getElementById('select-exercise').innerHTML = optionsHtml;
+        } catch (error) {
+            console.error('Failed to filter activities:', error);
+        }
+    });
+</script>
