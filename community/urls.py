@@ -13,5 +13,4 @@ urlpatterns = [
     path('thread/<int:thread_id>/reply/', views.add_reply_ajax, name='add_reply_ajax'),
     path('reply/<int:reply_id>/edit/', views.edit_reply_ajax, name='edit_reply'),
     path('reply/<int:reply_id>/delete/', views.delete_reply_ajax, name='delete_reply'),
-    path('profile/<str:username>/', views.profile_view, name='profile'),
 ]

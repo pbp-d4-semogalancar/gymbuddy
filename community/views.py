@@ -136,13 +136,6 @@ def delete_reply_ajax(request, reply_id):
         reply.delete()
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=405)
-
-def profile_view(request, username):
-    profile_user = get_object_or_404(User, username=username)
-    user_threads = Thread.objects.filter(user=profile_user).order_by('-date_created')
-    user_replies = Reply.objects.filter(user=profile_user).select_related('thread').order_by('-date_created')
-    return render(request, 'community/profile.html', {'profile_user': profile_user, 'threads': user_threads, 'replies': user_replies})
-
 class RegisterView(generic.CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy('login')

@@ -1,6 +1,6 @@
 <div class="reply-card" id="reply-{{ reply.id }}" data-timestamp="{{ reply.date_created.timestamp }}">
     <div class="post-header">
-        <span><a href="{% url 'community:profile' reply.user.username %}"><strong>{{ reply.user.username }}</strong></a><small style="color:#f8f9fa;"> · {{ reply.date_created|date:"d M Y" }}</small></span>
+        <span><strong>{{ reply.user.username }}</strong><small style="color:#f8f9fa;"> · {{ reply.date_created|date:"d M Y" }}</small></span>
     </div>
     <div class="post-body reply-content"><p>{{ reply.content|linebreaks }}</p></div>
     <div class="post-meta" style="border: none; padding-top: 5px;">

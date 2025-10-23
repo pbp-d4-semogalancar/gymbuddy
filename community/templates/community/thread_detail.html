@@ -7,7 +7,7 @@
     <div class="card" id="thread-{{ thread.id }}">
         <div class="post-header">
             <h1 style="font-size: 1.8em;">{{ thread.title }}</h1>
-            <span style="color: #f8f9fa;">Oleh <a href="{% url 'community:profile' thread.user.username %}">{{ thread.user.username }}</a> pada {{ thread.date_created|date:"d F Y, H:i" }}</span>
+            <span style="color: #f8f9fa;">Oleh {{ thread.user.username }} pada {{ thread.date_created|date:"d F Y, H:i" }}</span>
         </div>
         <hr style="border-color: #e4e6eb;">
         <div class="post-body"><p>{{ thread.content }}</p></div>
