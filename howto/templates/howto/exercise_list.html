@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Workout Explorer</title>
+  <style>
+    body { font-family: Arial; margin: 40px; background: #f9f9f9; }
+    .card { background: #fff; border: 1px solid #ddd; padding: 16px; margin-bottom: 10px; border-radius: 8px; box-shadow: 1px 1px 3px rgba(0,0,0,0.1); }
+    .filters { margin-bottom: 20px; }
+    select { padding: 6px; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <h1>💪 Workout Explorer</h1>
+
+  <div class="filters">
+    <form method="get">
+      <label for="muscle">Filter by Muscle:</label>
+      <select name="muscle" id="muscle" onchange="this.form.submit()">
+        <option value="">-- All --</option>
+        {% for m in muscles %}
+          <option value="{{ m }}" {% if selected_muscle == m %}selected{% endif %}>{{ m }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="equipment">Equipment:</label>
+      <select name="equipment" id="equipment" onchange="this.form.submit()">
+        <option value="">-- All --</option>
+        {% for e in equipments %}
+          <option value="{{ e }}" {% if selected_equipment == e %}selected{% endif %}>{{ e }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% for ex in exercises %}
+    <div class="card">
+      <h2>{{ ex.exercise_name }}</h2>
+      <p><strong>Target Muscle:</strong> {{ ex.main_muscle }}</p>
+      <p><strong>Equipment:</strong> {{ ex.equipment }}</p>
+      <p><strong>Instructions:</strong> {{ ex.instructions|truncatewords:30 }}</p>
+    </div>
+  {% empty %}
+    <p>No exercises found.</p>
+  {% endfor %}
+</body>
+</html>
