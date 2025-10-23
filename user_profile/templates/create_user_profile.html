@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Buat Profil - Gymbuddy{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold text-center text-green-600 mb-6">Buat Profil Baru</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="text-center text-{{ message.tags }}-600 mb-3">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Display Name -->
+            <div>
+                <label for="{{ form.display_name.id_for_label }}" class="block text-gray-700 font-semibold mb-1">
+                    {{ form.display_name.label }}
+                </label>
+                {{ form.display_name }}
+                {% if form.display_name.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.display_name.errors }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Bio -->
+            <div>
+                <label for="{{ form.bio.id_for_label }}" class="block text-gray-700 font-semibold mb-1">
+                    {{ form.bio.label }}
+                </label>
+                {{ form.bio }}
+                {% if form.bio.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.bio.errors }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Profile Picture -->
+            <div>
+                <label for="{{ form.profile_picture.id_for_label }}" class="block text-gray-700 font-semibold mb-1">
+                    {{ form.profile_picture.label }}
+                </label>
+                {{ form.profile_picture }}
+                {% if form.profile_picture.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.profile_picture.errors }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Favorite Workouts (Scrollable Checkbox List) -->
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">
+                    {{ form.favorite_workouts.label }}
+                </label>
+
+                <div class="border rounded-lg p-3 bg-gray-50 max-h-48 overflow-y-auto space-y-2">
+                    {% for value, label in form.favorite_workouts.field.choices %}
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" name="{{ form.favorite_workouts.name }}" value="{{ value }}"
+                                class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                                {% if value in form.favorite_workouts.value %}checked{% endif %}>
+                            <span class="text-gray-700">{{ label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+
+                {% if form.favorite_workouts.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.favorite_workouts.errors }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Submit -->
+            <button type="submit"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition duration-200">
+                Buat Profil
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

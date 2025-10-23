@@ -37,7 +37,7 @@ class Profile(models.Model):
         ('zumba', 'Zumba / Aerobik'),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='user_profile', primary_key=True)
     display_name = models.CharField(max_length=40, unique=True)
     bio = models.TextField(blank=True)
     profile_picture = models.ImageField(upload_to='images/', blank=True, null=True)  
