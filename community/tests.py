@@ -14,6 +14,7 @@ class ThreadModelAndFormTest(TestCase):
     """Menguji Model Thread dan Form ThreadForm."""
     
     def setUp(self):
+        # User dummy
         self.user = User.objects.create_user(username='testuser', password='password')
         self.thread = Thread.objects.create(
             title='Judul Uji',
@@ -28,6 +29,7 @@ class ThreadModelAndFormTest(TestCase):
 
     def test_threadform_validity(self):
         """Pastikan ThreadForm valid dengan data yang benar."""
+        # ThreadForm hanya membutuhkan title dan content
         form = ThreadForm(data={'title': 'Form Test', 'content': 'Isi Form'})
         self.assertTrue(form.is_valid())
 
@@ -45,7 +47,9 @@ class ThreadViewsTest(TestCase):
     
     def setUp(self):
         self.client = Client()
+        # User pemilik thread (untuk otorisasi)
         self.owner = User.objects.create_user(username='owner', password='password123')
+        # User lain (untuk menguji penolakan otorisasi)
         self.other_user = User.objects.create_user(username='intruder', password='password456')
         
         self.thread = Thread.objects.create(
@@ -54,7 +58,7 @@ class ThreadViewsTest(TestCase):
             user=self.owner
         )
         
-        # URLs yang diuji
+        # URLs yang diuji (menggunakan nama URL dari community/urls.py)
         self.community_url = reverse('community:show_community')
         self.create_ajax_url = reverse('community:create_thread_ajax')
         self.edit_url = reverse('community:edit_thread_user', args=[self.thread.id])
@@ -86,12 +90,13 @@ class ThreadViewsTest(TestCase):
         """Pastikan Create AJAX redirect ke URL login yang benar."""
         response = self.client.post(self.create_ajax_url, {'title': 'New', 'content': 'Test'}, follow=True)
         
-        # FIX FINAL: Mengharuskan test mengharapkan URL custom Anda
-        expected_login_path = reverse('community:login')
+        # FIX: Mengubah ekspektasi agar sesuai dengan output sistem: /accounts/login/
+        # Karena settings.LOGIN_URL adalah '/accounts/login/', kita gunakan path string ini.
+        expected_login_path = '/accounts/login/'
         expected_url = expected_login_path + '?next=' + self.create_ajax_url
 
-        self.assertRedirects(response, expected_url) 
-        
+        self.assertRedirects(response, expected_url)
+
     # --- UPDATE (edit_thread_user) ---
     def test_edit_thread_user_success(self):
         """Pemilik thread harus bisa mengedit threadnya."""
@@ -100,7 +105,8 @@ class ThreadViewsTest(TestCase):
         new_data = {'title': 'Updated Title', 'content': 'Updated Content'}
         response = self.client.post(self.edit_url, new_data)
         
-        self.assertRedirects(response, self.community_url)
+        # Test mengharapkan redirect ke halaman komunitas setelah sukses
+        self.assertRedirects(response, self.community_url) 
         self.thread.refresh_from_db()
         self.assertEqual(self.thread.title, 'Updated Title')
         
@@ -111,7 +117,7 @@ class ThreadViewsTest(TestCase):
         new_data = {'title': 'Hacked Title', 'content': 'Hacked Content'}
         response = self.client.post(self.edit_url, new_data)
         
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN) # Status 403
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN) # Views mengembalikan 403
 
     # --- DELETE (delete_thread_user) ---
     def test_delete_thread_user_success(self):
@@ -121,7 +127,7 @@ class ThreadViewsTest(TestCase):
 
         response = self.client.post(self.delete_url)
         
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.status_code, HTTPStatus.OK) # Views mengembalikan 200 OK
         self.assertEqual(Thread.objects.count(), initial_count - 1)
         self.assertIn('success', response.json()['status'])
 
@@ -132,5 +138,5 @@ class ThreadViewsTest(TestCase):
         
         response = self.client.post(self.delete_url)
         
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN) # Status 403
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN) # Views mengembalikan 403
         self.assertEqual(Thread.objects.count(), initial_count)

@@ -49,11 +49,26 @@ class CustomLogoutView(LogoutView):
 # [R] - READ: Menampilkan Semua Thread (Halaman Komunitas)
 def show_community(request):
     threads = Thread.objects.all().order_by('-date_created')
+    
+    # LOGIC FILTER BARU
+    filter_type = request.GET.get('filter')
+    
+    if filter_type == 'my' and request.user.is_authenticated:
+        # Filter hanya thread milik user yang sedang login
+        threads = threads.filter(user=request.user)
+    elif filter_type == 'all' or not request.user.is_authenticated:
+        # Tampilkan semua jika filter 'all' atau jika user belum login
+        filter_type = 'all'
+
+    # Jika filter_type == 'all' atau user belum login, threads tetap all().
+
     form = ThreadForm()
     context = {
         'threads': threads,
         'form': form,
         'user_is_admin': is_staff_user(request.user),
+        # Kirimkan filter_type saat ini ke template untuk styling tombol
+        'current_filter': filter_type,
     }
     return render(request, 'community/community_page.html', context)
 
