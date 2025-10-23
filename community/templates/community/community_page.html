@@ -94,11 +94,25 @@
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">Logout</button>
             </form>
-
         {% else %}
             <p class="mt-3">Silakan <a href="{% url 'login' %}" class="text-warning">Login</a> untuk membuat thread.</p>
         {% endif %}
     </div>
+
+    {% if user.is_authenticated %}
+    <div class="container mt-4">
+        <div class="d-flex gap-2">
+            <a href="{% url 'community:community_page' %}?filter=all" 
+               class="btn {% if current_filter == 'all' %}btn-primary{% else %}btn-outline-dark{% endif %}">
+                Semua Thread
+            </a>
+            <a href="{% url 'community:community_page' %}?filter=my" 
+               class="btn {% if current_filter == 'my' %}btn-primary{% else %}btn-outline-dark{% endif %}">
+                Thread Saya
+            </a>
+        </div>
+    </div>
+    {% endif %}
 
     <div class="container mt-5">
         

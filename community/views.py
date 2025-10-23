@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.db.models import Count, OuterRef, Subquery
-from django.contrib.auth.models import User
 from django.views import generic
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import UserCreationForm
@@ -14,22 +13,28 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 def community_page_view(request):
-    sort_option = request.GET.get('sort', 'newest')
+    filter_type = request.GET.get('filter')
+    base_threads = Thread.objects.all()
+
+    if filter_type == 'my' and request.user.is_authenticated:
+        base_threads = base_threads.filter(user=request.user)
+    elif filter_type == 'all' or not request.user.is_authenticated:
+        filter_type = 'all'
+
     top_reply_subquery = Reply.objects.filter(thread=OuterRef('pk')).order_by('-date_created')
-    threads = Thread.objects.annotate(
+
+    threads = base_threads.annotate(
         reply_count=Count('replies'),
         top_reply_content=Subquery(top_reply_subquery.values('content')[:1]),
         top_reply_user=Subquery(top_reply_subquery.values('user__username')[:1]),
-    )
-
-    if sort_option == 'most_replied':
-        threads = threads.order_by('-reply_count', '-date_created')
-    elif sort_option == 'oldest':
-        threads = threads.order_by('date_created')
-    else:
-        threads = threads.order_by('-date_created')
-        
-    context = {'threads': threads, 'current_sort': sort_option, 'thread_form': ThreadForm()}
+    ).order_by('-date_created')
+    
+    context = {
+        'threads': threads,
+        'current_filter': filter_type, 
+        'thread_form': ThreadForm()
+    }
+    
     return render(request, 'community/community_page.html', context)
 
 def thread_detail_view(request, thread_id):
@@ -37,6 +42,7 @@ def thread_detail_view(request, thread_id):
     top_level_replies = thread.replies.filter(parent__isnull=True).order_by('date_created')
     reply_form = ReplyForm()
     return render(request, 'community/thread_detail.html', {'thread': thread, 'replies': top_level_replies, 'reply_form': reply_form})
+
 
 # [C] - CREATE: Membuat Thread Baru via AJAX
 @login_required
@@ -64,26 +70,38 @@ def create_thread_ajax(request):
 
     return HttpResponse(status=405)  # Method Not Allowed
 
-
 # [U] - UPDATE: Mengedit Thread Milik Sendiri
 @login_required
 def edit_thread_user(request, thread_id):
     thread = get_object_or_404(Thread, id=thread_id)
 
-    # Hanya pemilik thread yang bisa edit
     if thread.user != request.user:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Anda tidak punya izin.'}, status=403)
         return HttpResponse("Anda tidak memiliki izin untuk mengedit thread ini.", status=403)
 
     if request.method == 'POST':
         form = ThreadForm(request.POST, instance=thread)
+        
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
         if form.is_valid():
             form.save()
-            return redirect('community:community_page')
-    else:
+            
+            if is_ajax:
+                return JsonResponse({'success': True})
+            else:
+                return redirect('community:community_page')
+        else:
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': form.errors})
+            else:
+                return render(request, 'community/edit_thread.html', {'form': form, 'thread': thread})
+
+    else: 
         form = ThreadForm(instance=thread)
 
     return render(request, 'community/edit_thread.html', {'form': form, 'thread': thread})
-
 
 # [D] - DELETE: Menghapus Thread Milik Sendiri
 @login_required
