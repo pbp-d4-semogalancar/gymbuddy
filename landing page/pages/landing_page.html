@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Selamat Datang di GymBuddy{% endblock title %}
+
+{% block content %}
+
+<section class="text-center py-20 bg-gray-900 text-white">
+    <h1 class="text-5xl font-bold">Bangun Tubuh Impianmu</h1>
+    <p class="text-xl mt-4">Rekomendasi latihan spesifik, pencatatan progres.</p>
+    
+    <a href="{% url 'workoutlog:gym_log_page' %}" 
+       class="mt-8 inline-block bg-white text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+        Mulai Lacak Progres
+    </a>
+</section>
+
+<section id="features" class="py-16">
+    <h2 class="text-3xl font-bold text-center mb-10">Fitur Kami</h2>
+    <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div class="text-center p-6 border rounded-lg shadow-lg">
+            <h3 class="text-xl font-semibold">Activity Log</h3>
+            <p>Catat semua progres latihanmu dengan mudah.</p>
+        </div>
+        <div class="text-center p-6 border rounded-lg shadow-lg">
+            <h3 class="text-xl font-semibold">Rekomendasi</h3>
+            <p>Dapatkan rekomendasi latihan sesuai target otot.</p>
+        </div>
+        <div class="text-center p-6 border rounded-lg shadow-lg">
+            <h3 class="text-xl font-semibold">Statistik</h3>
+            <p>Lihat perkembanganmu dari minggu ke minggu.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
