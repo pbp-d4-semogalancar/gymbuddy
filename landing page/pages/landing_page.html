@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Selamat Datang di GymBuddy{% endblock title %}
+
+{% block content %}
+
+<section class="text-center py-20 bg-gray-900 text-white">
+    <h1 class="text-5xl font-bold">Bangun Tubuh Impianmu</h1>
+    <p class="text-xl mt-4">Rekomendasi latihan spesifik, pencatatan progres.</p>
+    
+    <a href="{% url 'workoutlog:gym_log_page' %}" 
+       class="mt-8 inline-block bg-white text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+        Mulai Lacak Progres
+    </a>
+</section>
+
+<section id="features" class="py-16">
+    <h2 class="text-3xl font-bold text-center mb-10">Fitur Kami</h2>
+    
+    <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto px-4">
+
+        <a href="#" class="block text-center p-8 border bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h3 class="text-2xl font-semibold text-gray-900">Community</h3>
+            <p class="text-gray-600 mt-2">Berbagi tips dan motivasi dengan sesama member.</p>
+        </a>
+
+        <a href="#" class="block text-center p-8 border bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h3 class="text-2xl font-semibold text-gray-900">How To</h3>
+            <p class="text-gray-600 mt-2">Jelajahi tutorial workout dengan gerakan yang benar.</p>
+        </a>
+
+        <a href="{% url 'workoutlog:gym_log_page' %}" 
+           class="block text-center p-8 border-2 border-gray-900 bg-white rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <h3 class="text-2xl font-semibold text-gray-900">Log Aktivitas</h3>
+            <p class="text-gray-600 mt-2">Catat dan lacak semua progres latihanmu di sini.</p>
+        </a>
+        
+    </div>
+</section>
+
+{% endblock content %}
