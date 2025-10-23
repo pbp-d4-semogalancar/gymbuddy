@@ -10,7 +10,6 @@ from django.http import JsonResponse
 import json
 from django.contrib.auth.models import User
 
-# Tanpa AJAX, render biasa
 @csrf_exempt
 def register_user(request):
     form = UserCreationForm()
@@ -58,42 +57,49 @@ def logout_user(request):
 @csrf_exempt
 def register_user_ajax(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        username = data['username']
-        password1 = data['password1']
-        password2 = data['password2']
+        try:
+            data = json.loads(request.body)
+            username = data.get('username', '').strip() # Ambil dan bersihkan
+            password1 = data.get('password1', '').strip()
+            password2 = data.get('password2', '').strip()
 
-        # Check if the passwords match
-        if password1 != password2:
+            # --- VALIDASI TAMBAHAN (INI PENTING) ---
+            if not username or not password1:
+                return JsonResponse({
+                    "status": False,
+                    "message": "Username and password cannot be empty."
+                }, status=400)
+            # --- AKHIR VALIDASI TAMBAHAN ---
+
+            if password1 != password2:
+                return JsonResponse({
+                    "status": False,
+                    "message": "Passwords do not match."
+                }, status=400)
+            
+            if User.objects.filter(username=username).exists():
+                return JsonResponse({
+                    "status": False,
+                    "message": "Username already exists."
+                }, status=400)
+            
+            user = User.objects.create_user(username=username, password=password1)
+            user.save()
+            
             return JsonResponse({
-                "status": False,
-                "message": "Passwords do not match."
-            }, status=400)
+                "username": user.username,
+                "status": 'success',
+                "message": "User created successfully!"
+            }, status=201) # Ganti ke 201 (Created)
         
-        # Check if the username is already taken
-        if User.objects.filter(username=username).exists():
-            context = {
-                "username": request.user.username,
-                "status": False,
-                "message": "Username already exists."
-            }
-            return JsonResponse(context, status=400)
-        
-        user = User.objects.create_user(username=username, password=password1)
-        user.save()
-        context = {
-            "username": user.username,
-            "status": 'success',
-            "message": "User created successfully!"
-        }
-        return JsonResponse(context, status=200)
+        except json.JSONDecodeError:
+             return JsonResponse({"status": False, "message": "Invalid JSON data."}, status=400)
+        except Exception as e:
+            # Menangkap semua error lain (termasuk dari create_user)
+            return JsonResponse({"status": False, "message": str(e)}, status=500)
     
     else:
-        context = {
-            "status": False,
-            "message": "Invalid request method."
-        }
-        return JsonResponse(context, status=400)
+        return JsonResponse({"status": False, "message": "Invalid request method."}, status=400)
 
 @csrf_exempt
 def login_user_ajax(request):
