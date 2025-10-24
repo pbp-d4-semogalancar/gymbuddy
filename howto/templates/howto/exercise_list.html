@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Workout Explorer{% endblock %}
+{% block content %}
+{% include 'navbar.html' %}
+
+<section class="bg-gray-900 text-white py-16 text-center">
+  <h1 class="text-4xl font-bold">💪 Workout Explorer</h1>
+</section>
+
+<section class="bg-gray-50 py-10">
+  <div class="max-w-6xl mx-auto px-4">
+    
+    <!-- FILTER -->
+    <form method="get" class="flex flex-wrap justify-center gap-4 mb-10">
+      <div>
+        <label for="muscle" class="font-semibold mr-2">Filter by Muscle:</label>
+        <select name="muscle" id="muscle" onchange="this.form.submit()" class="border rounded-lg p-2">
+          <option value="">-- All --</option>
+          {% for m in muscles %}
+            <option value="{{ m }}" {% if selected_muscle == m %}selected{% endif %}>{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label for="equipment" class="font-semibold mr-2">Equipment:</label>
+        <select name="equipment" id="equipment" onchange="this.form.submit()" class="border rounded-lg p-2">
+          <option value="">-- All --</option>
+          {% for e in equipments %}
+            <option value="{{ e }}" {% if selected_equipment == e %}selected{% endif %}>{{ e }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
+
+    <!-- CARD GRID -->
+    <div class="grid md:grid-cols-3 gap-6">
+      {% for ex in exercises %}
+        <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+          <h2 class="text-xl font-bold mb-2">{{ ex.exercise_name }}</h2>
+          <p><strong>Target Muscle:</strong> {{ ex.main_muscle }}</p>
+          <p><strong>Equipment:</strong> {{ ex.equipment }}</p>
+          <p class="text-gray-700 mt-2 text-sm"><strong>Instructions:</strong> {{ ex.instructions|truncatewords:25 }}</p>
+
+          <!-- TOMBOL AJAX MODAL -->
+          <button 
+              data-load-url="{% url 'howto:exercise_detail' ex.pk %}" 
+              class="text-blue-600 font-semibold mt-3 hover:underline">
+              Lihat Detail →
+          </button>
+        </div>
+      {% empty %}
+        <p class="text-center text-gray-600">No exercises found.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock content %}
