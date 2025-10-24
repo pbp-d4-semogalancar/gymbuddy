@@ -1,0 +1,17 @@
+{% load static %}
+{% for thread in threads %}
+<div class="thread-card" id="thread-{{ thread.id }}">
+    <h4>Thread: {{ thread.title }}</h4>
+    <p class="thread-content-body">{{ thread.content }}</p> 
+    <p>
+        Reply: {{ thread.reply_count }} | Dikirim oleh {{ thread.user.username }} pada {{ thread.date_created|date:"M d, Y" }}
+        {% if thread.user == request.user %}
+            | 
+            <a href="{% url 'community:edit_thread_user' thread.id %}" class="text-warning">Edit</a> | 
+            <a href="#" class="text-danger delete-btn" data-thread-id="{{ thread.id }}">Hapus</a>
+        {% endif %}
+    </p>
+</div>
+{% empty %}
+<p id="empty-message" class="text-center">Belum ada diskusi, ayo mulai thread pertama!</p>
+{% endfor %}

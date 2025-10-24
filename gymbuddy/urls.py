@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# gymbuddy/urls.py
 from django.contrib import admin
 from django.urls import path, include
 
@@ -21,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('landing_page.urls')),
     path('auth/', include('authentication.urls', namespace='authentication')),
+    path('community/', include('community.urls')),
 ]
+
