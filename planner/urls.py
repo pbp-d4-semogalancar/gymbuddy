@@ -9,5 +9,7 @@ urlpatterns = [
     path('search-exercises/', views.ExerciseSearchJSONView.as_view(), name='search_exercises'),
     path('api/add-plan/', views.AddPlanAPIView.as_view(), name='api_add_plan'),
     path('api/get-plans-for-date/', views.GetPlansForDateAPIView.as_view(), name='get_plans_for_date'),
+    path('log/load-form/<int:plan_id>/', views.load_completion_form, name='load_completion_form'),
+    path('log/complete/<int:plan_id>/', views.ajax_complete_log, name='ajax_complete_log'),
 ]
 

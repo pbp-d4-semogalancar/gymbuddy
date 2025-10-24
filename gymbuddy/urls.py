@@ -22,9 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('landing_page.urls')),
     path('auth/', include('authentication.urls', namespace='authentication')),
-    path('admin/', admin.site.urls),
     path('howto/', include('howto.urls')),
-    path('planner/', include('planner.urls', namespace='planner')),
-    path('log/', WorkoutLogView.as_view(), name='workout_log'),
+    path('planner/', include('planner.urls', namespace='planner')), 
+    path('log/', WorkoutLogView.as_view(), name='workout_log'), # I
 
 ]

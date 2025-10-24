@@ -72,14 +72,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         'X-CSRFToken': formData.get('csrfmiddlewaretoken')
                     }
                 });
-
-                const data = await response.json(); 
+                const data = await response.json();
 
                 if (response.ok) {
-                    window.showToast(data.message, 'success');
-                    closeModal(); 
-                    
+                    window.showToast(data.message || 'Operasi berhasil!', 'success');
+                    const successEvent = new CustomEvent('modal:success', {
+                        bubbles: true, 
+                        detail: { response: data, form: form }
+                    });
+                    form.dispatchEvent(successEvent);
+                    if (!successEvent.defaultPrevented) {
+                        closeModal();
+                    }
+
                 } else {
+                     const errorEvent = new CustomEvent('modal:error', {
+                         bubbles: true,
+                         detail: { error: data, form: form, status: response.status }
+                     });
+                     form.dispatchEvent(errorEvent);
                     window.showToast(data.message || 'Terjadi error.', 'error');
                 }
             } catch (error) {
