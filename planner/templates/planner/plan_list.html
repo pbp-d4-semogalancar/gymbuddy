@@ -1,0 +1,249 @@
+<!-- TEMPLATE REFRESH v4 - Removed broken comment -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <h1 class="text-3xl font-bold mb-6 text-gray-900">Buat Rencana Latihan</h1>
+
+    <!-- Form Container -->
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <form id="add-plan-form" class="space-y-6">
+            
+            <!-- CSRF Token is crucial for POST requests -->
+            {% csrf_token %}
+            
+            <!-- 1. Exercise Search -->
+            <div class="relative">
+                <label for="exercise-search" class="block text-sm font-semibold text-gray-700">1. Cari Latihan</label>
+                <input 
+                    type="text" 
+                    id="exercise-search" 
+                    name="exercise-search"
+                    placeholder="Mulai ketik (misal: 'Bench Press')..."
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring focus:ring-gray-900 focus:ring-opacity-50"
+                >
+                <!-- This hidden input will store the ID of the selected exercise -->
+                <input type="hidden" id="selected-exercise-id">
+                
+                <!-- Search Results Dropdown -->
+                <ul 
+                    id="search-results-list"
+                    class="absolute w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg overflow-hidden z-10"
+                >
+                    <!-- JavaScript will fill this -->
+                </ul>
+            </div>
+
+            <!-- 2. Sets and Reps -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="sets-input" class="block text-sm font-semibold text-gray-700">2. Sets</label>
+                    <input 
+                        type="number" 
+                        id="sets-input" 
+                        name="sets"
+                        placeholder="3"
+                        min="1"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring focus:ring-gray-900 focus:ring-opacity-50"
+                    >
+                </div>
+                <div>
+                    <label for="reps-input" class="block text-sm font-semibold text-gray-700">3. Reps</label>
+                    <input 
+                        type="number" 
+                        id="reps-input" 
+                        name="reps"
+                        placeholder="10"
+                        min="1"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring focus:ring-gray-900 focus:ring-opacity-50"
+                    >
+                </div>
+            </div>
+            
+            <!-- 3. Submit Button -->
+            <div>
+                <button 
+                    type="submit"
+                    class="w-full bg-gray-900 text-white font-semibold py-3 px-4 rounded-md shadow-md
+                           hover:bg-gray-700 transition-colors duration-200
+                           focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-opacity-75"
+                >
+                    Tambahkan ke Rencana
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- The Live-Updating Plan List -->
+    <div class="mt-10">
+        <h2 class="text-2xl font-bold mb-4 text-gray-900">Rencana Latihan Hari Ini</h2>
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <ul id="current-plan-list" class="space-y-3">
+                <!-- JavaScript will add items here -->
+                <li id="empty-plan-message" class="text-gray-500">Belum ada latihan yang ditambahkan.</li>
+            </ul>
+        </div>
+    </div>
+
+</div> <!-- End of container -->
+
+<script>
+//
+// --- DOMContentLoaded Wrapper ---
+// This waits until the whole page, including base.html's
+// 'defer' scripts (like toast.js), are loaded.
+//
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Get all the elements we need
+    const searchInput = document.getElementById('exercise-search');
+    const searchResultsList = document.getElementById('search-results-list');
+    const selectedExerciseIdInput = document.getElementById('selected-exercise-id');
+    
+    const addPlanForm = document.getElementById('add-plan-form');
+    const setsInput = document.getElementById('sets-input');
+    const repsInput = document.getElementById('reps-input');
+    
+    const currentPlanList = document.getElementById('current-plan-list');
+    
+    // We need the CSRF token for POST requests
+    const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+    
+    // --- 1. AJAX for Exercise Search ---
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        
+        if (query.length < 2) {
+            searchResultsList.innerHTML = '';
+            return;
+        }
+
+        fetch(`/planner/search-exercises/?q=${encodeURIComponent(query)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                searchResultsList.innerHTML = ''; // Clear old results
+                
+                if (data.exercises.length > 0) {
+                    data.exercises.forEach(exercise => {
+                        const li = document.createElement('li');
+                        li.textContent = exercise.name;
+                        li.className = 'p-3 hover:bg-gray-100 cursor-pointer';
+                        
+                        li.dataset.id = exercise.id;
+                        li.dataset.name = exercise.name;
+                        
+                        searchResultsList.appendChild(li);
+                    });
+                } else {
+                    searchResultsList.innerHTML = `<li class="p-3 text-gray-500">Tidak ada hasil ditemukan.</li>`;
+                }
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                searchResultsList.innerHTML = `<li class="p-3 text-red-500">Gagal memuat hasil. ${error.message}</li>`;
+            });
+    });
+
+    // Handle clicking on a search result
+    searchResultsList.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI' && e.target.dataset.id) {
+            const exerciseId = e.target.dataset.id;
+            const exerciseName = e.target.dataset.name;
+            
+            searchInput.value = exerciseName;
+            selectedExerciseIdInput.value = exerciseId;
+            searchResultsList.innerHTML = '';
+        }
+    });
+
+    // --- 2. AJAX for Adding to Plan ---
+    addPlanForm.addEventListener('submit', (e) => {
+        e.preventDefault(); // Stop the page reload
+        
+        const exerciseId = selectedExerciseIdInput.value;
+        const sets = setsInput.value;
+        const reps = repsInput.value;
+        
+        // --- 3. Validation ---
+        if (!exerciseId) {
+            window.showToast('Silakan cari dan pilih latihan dulu.', 'error');
+            return;
+        }
+        if (!sets || sets <= 0) {
+            window.showToast('Silakan masukkan jumlah set yang valid.', 'error');
+            return;
+        }
+        if (!reps || reps <= 0) {
+            window.showToast('Silakan masukkan jumlah repetisi yang valid.', 'error');
+            return;
+        }
+        
+        const postData = {
+            exercise_id: exerciseId,
+            sets: sets,
+            reps: reps
+        };
+
+        // --- 4. Send the data to our AddPlanAPIView ---
+        fetch('/planner/api/add-plan/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken // Send the CSRF token
+            },
+            body: JSON.stringify(postData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().catch(() => {
+                    throw new Error(response.statusText);
+                }).then(errData => {
+                    throw new Error(errData.error || `HTTP error! status: ${response.status}`);
+                });
+            }
+            return response.json(); // This is the success data
+        })
+        .then(data => {
+            // --- 5. Success! Update the page ---
+            
+            window.showToast('Latihan berhasil ditambahkan!', 'success');
+
+            const emptyMsg = document.getElementById('empty-plan-message');
+            if (emptyMsg) {
+                emptyMsg.remove();
+            }
+
+            const li = document.createElement('li');
+            li.className = 'py-2 px-3 bg-gray-50 rounded-md flex justify-between items-center';
+            li.innerHTML = `
+                <span>
+                    <strong class="font-semibold text-gray-800">${data.exercise_name}</strong>
+                    - ${data.sets} set x ${data.reps} reps
+                </span>
+            `;
+            currentPlanList.prepend(li);
+            
+            // Clear the form for the next entry
+            searchInput.value = '';
+            selectedExerciseIdInput.value = '';
+            setsInput.value = '';
+            repsInput.value = '';
+        })
+        .catch(error => {
+            console.error('Submit error:', error);
+            window.showToast(`Error: ${error.message}`, 'error');
+        });
+    });
+
+}); // <-- End of the DOMContentLoaded wrapper
+</script>
+
+{% endblock content %}
