@@ -18,9 +18,7 @@
 # Deskripsi Aplikasi
 Setiap orang memiliki alasan yang berbeda-beda untuk berolahraga, ada orang yang ingin tubuh lebih kuat, ada yang mengejar bentuk tubuh impian, dan ada juga yang sekadar ingin hidup lebih sehat. Namun, yang sama dari semua alasan itu adalah tantangan yang dihadapi saat ingin memulai. Banyak sekali orang yang kebingunan workout apa yang sebaiknya dilakukan, bagaimana cara melakukan workout tersebut dengan benar, dan bagaimana agar bisa tetap seimbang dan konsisten hingga mencapai target. Gymbuddy hadir untuk menjawab seluruh tantangan tersebut dengan menciptakan sistem workout yang terstruktur, fleksibel, dan mudah diikuti.
 
-Mulailah rutinitas workout anda bersama gymbuddy. Dimulai dari memilih workout melalui fitur how to pengguna dapat menjelajahi tutorial-tutorial workout sesuai dengan kebutuhannya. Pengguna tidak perlu ragu lagi, seluruh instruksi sudah tersaji dengan jelas. Selesai workout, hasilnya akan langsung tersimpan oleh fitur log yang dapat memberikan statistik workout anda selama seminggu. Terdapat juga fitur target yang memungkinkan pengguna membuat daftar target yang ingin dicapai dalam rentang waktu tertentu.
-
-Agar tidak bosan dengan workout yang itu-itu saja, fitur playlist hadir untuk pengguna yang ingin mengkombinasikan beberapa workout menjadi satu sesi workout yang baru. Tidak hanya itu, fitur planner juga membantu menyusun jadwal workout untuk seminggu atau sebulan kedepan agar tetap konsisten ditengah kesibukan lainnya. Gymbuddy juga memberikan tempat untuk saling bertanya, berbagi pengalaman, dan menemukan inspirasi melalui fitur community.  
+Mulailah rutinitas workout anda bersama gymbuddy. Dimulai dari memilih workout melalui fitur how to pengguna dapat menjelajahi tutorial-tutorial workout sesuai dengan kebutuhannya. Pengguna tidak perlu ragu lagi, seluruh instruksi sudah tersaji dengan jelas. Selesai workout, hasilnya akan langsung tersimpan oleh fitur log yang dapat memberikan statistik workout anda selama seminggu bahkan sebulan. Gymbuddy juga memberikan tempat untuk saling bertanya, berbagi pengalaman, dan menemukan inspirasi melalui fitur community.  
 
 Sudah siap untuk mendapatkan tubuh yang lebih kuat, bentuk tubuh impian, atau hidup yang lebih sehat? Dengan gymbuddy target anda akan tercapai dengan lebih cepat dan mudah!
 
@@ -32,13 +30,13 @@ Sudah siap untuk mendapatkan tubuh yang lebih kuat, bentuk tubuh impian, atau hi
 - Dikerjakan oleh Wildan Muhammad Hafidz
 - Fitur How To memungkinkan anda untuk menjelajahi berbagai tutorial workout yang relevan sesuai jenis otot yang ingin dilatih. Dengan fitur ini, anda dapat memilih jenis workout sesuai kebutuhan sehingga tidak ada kata tidak untuk produktif!
 
-## Progress ✅
+## Planner ✅
 - Dikerjakan oleh Alderryl Juan Fauza 
-- Modul **Progress** merupakan bagian dari fitur **log** yang memungkinkan anda menyusun target pribadi anda serta memantau progress. Dengan fitur ini, workout anda akan semakin lebih jelas, tertata, dan progresif!
+- Modul **Planner** merupakan bagian dari fitur **log aktivitas** yang memungkinkan anda menyusun rancangan kegiatan workout pribadi anda. Dengan fitur ini, workout anda akan semakin lebih jelas, tertata, dan progresif!
 
-## To Do 🗓️
+## Target 🗓️
 - Dikerjakan oleh Riyaan Baihaqi
-- Modul **To Do** memungkinkan anda untuk membuat runtutan rencana untuk menunjang produktivitas anda. Modul ini memungkinkan anda untuk menyusun kegiatan workout serta memasukkan rangkaian kegiatannya ke **log**.
+- Modul **Target** memungkinkan anda untuk melihat realisasi planner anda. Modul ini memungkinkan anda untuk melakukan update progress dari planner anda, filtering progress bulanan dan mingguan, serta update realisasi target ke **log**.
 
 ## Profile 🤝
 - DIkerjakan oleh Rexy Adrian Fernando
@@ -75,7 +73,7 @@ GymBuddy menggunakan dataset publik berupa kaggle berikut:
 - Admin dapat menambahkan jenis dan rincian kegiatan workout yang dilakukan.
 
 ## 2. User
-- User nantinya dapat melihat berbagai kegiatan workout yang dapat dilakukan beserta step by stepnya pada menu How To, membuat playlist kegiatan workout pada menu Playlist, menambahkan dan memantau kegiatan workout melalui menu Log, membuat planning bulanan melalui menu Planner, membuat target bulanan melalui menu Target, serta sharing rangkaian kegiatan melalui menu community.
+- User nantinya dapat melihat berbagai kegiatan workout yang dapat dilakukan beserta step by stepnya pada menu How To, membuat target dan memantau progress di log aktivitas, serta sharing rangkaian kegiatan melalui menu community.
 
 ---
 

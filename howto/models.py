@@ -7,8 +7,6 @@ class Exercise(models.Model):
     """
     exercise_name = models.CharField(max_length=120)
     main_muscle = models.CharField(max_length=100)  # contoh: Chest, Back, Legs
-    target_muscle = models.TextField(blank=True, null=True)  # contoh: Pectoralis Major
-    synergist_muscle = models.TextField(blank=True, null=True)  # contoh: Triceps Brachii, Deltoid
     equipment = models.CharField(max_length=100, blank=True, null=True)  # contoh: Barbell, Dumbbell
     instructions = models.TextField(blank=True, null=True)  # gabungan preparation + execution
     image = models.ImageField(upload_to='howto/images/', blank=True, null=True)  # opsional, jika nanti ingin menampilkan gambar latihan

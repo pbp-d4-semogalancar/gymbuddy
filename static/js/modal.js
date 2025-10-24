@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = button.getAttribute('data-load-url');
             
             modalContentTarget.innerHTML = '<p class="p-6 text-center text-gray-600">Loading form...</p>';
-            
+            genericModal.classList.remove('hidden');
             try {
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Network response was not ok');

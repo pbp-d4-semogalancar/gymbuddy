@@ -1,0 +1,37 @@
+<div class="p-6">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4 border-b pb-2">
+    {{ exercise.exercise_name }}
+  </h2>
+
+  <div class="space-y-2 text-gray-700">
+    <p>
+      <span class="font-semibold text-gray-900">🏋️ Target Muscle:</span>
+      <span class="ml-1">{{ exercise.main_muscle|default:"-" }}</span>
+    </p>
+
+    <p>
+      <span class="font-semibold text-gray-900">⚙️ Equipment:</span>
+      <span class="ml-1">{{ exercise.equipment|default:"-" }}</span>
+    </p>
+  </div>
+
+  <div class="mt-5">
+    <h3 class="font-semibold text-gray-900 mb-2">📋 Instructions:</h3>
+    <p class="text-gray-700 leading-relaxed whitespace-pre-line text-justify">
+      {{ exercise.instructions|default:"No instructions available." }}
+    </p>
+  </div>
+
+  {% if exercise.image %}
+  <div class="mt-6">
+    <img src="{{ exercise.image.url }}" alt="{{ exercise.exercise_name }}"
+         class="rounded-lg shadow-md w-full object-cover max-h-60">
+  </div>
+  {% endif %}
+
+  <div class="mt-6 flex justify-end">
+    <button class="modal-close bg-gray-800 text-white font-semibold px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+      Tutup
+    </button>
+  </div>
+</div>
