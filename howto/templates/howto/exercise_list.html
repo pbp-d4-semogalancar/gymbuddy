@@ -1,47 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Workout Explorer</title>
-  <style>
-    body { font-family: Arial; margin: 40px; background: #f9f9f9; }
-    .card { background: #fff; border: 1px solid #ddd; padding: 16px; margin-bottom: 10px; border-radius: 8px; box-shadow: 1px 1px 3px rgba(0,0,0,0.1); }
-    .filters { margin-bottom: 20px; }
-    select { padding: 6px; margin-right: 8px; }
-  </style>
-</head>
-<body>
-  <h1>💪 Workout Explorer</h1>
+{% extends 'base.html' %}
+{% load static %}
 
-  <div class="filters">
-    <form method="get">
-      <label for="muscle">Filter by Muscle:</label>
-      <select name="muscle" id="muscle" onchange="this.form.submit()">
-        <option value="">-- All --</option>
-        {% for m in muscles %}
-          <option value="{{ m }}" {% if selected_muscle == m %}selected{% endif %}>{{ m }}</option>
-        {% endfor %}
-      </select>
+{% block meta %}
+<title>💪 Workout Explorer - GymBuddy</title>
+{% endblock meta %}
 
-      <label for="equipment">Equipment:</label>
-      <select name="equipment" id="equipment" onchange="this.form.submit()">
-        <option value="">-- All --</option>
-        {% for e in equipments %}
-          <option value="{{ e }}" {% if selected_equipment == e %}selected{% endif %}>{{ e }}</option>
-        {% endfor %}
-      </select>
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="min-h-screen bg-gray-50 py-10 px-6 sm:px-10 lg:px-20">
+
+  <!-- Judul -->
+  <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">
+    💪 Workout Explorer
+  </h1>
+
+  <!-- Filter -->
+  <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-5 mb-8">
+    <form method="get" class="flex flex-col md:flex-row items-center justify-center gap-4">
+      
+      <div>
+        <label for="muscle" class="block text-gray-700 font-medium mb-1">Filter by Muscle:</label>
+        <select 
+          name="muscle" id="muscle" onchange="this.form.submit()"
+          class="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+        >
+          <option value="">-- All --</option>
+          {% for m in muscles %}
+            <option value="{{ m }}" {% if selected_muscle == m %}selected{% endif %}>{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label for="equipment" class="block text-gray-700 font-medium mb-1">Equipment:</label>
+        <select 
+          name="equipment" id="equipment" onchange="this.form.submit()"
+          class="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+        >
+          <option value="">-- All --</option>
+          {% for e in equipments %}
+            <option value="{{ e }}" {% if selected_equipment == e %}selected{% endif %}>{{ e }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
     </form>
   </div>
 
-  {% for ex in exercises %}
-    <div class="card">
-      <h2>{{ ex.exercise_name }}</h2>
-      <p><strong>Target Muscle:</strong> {{ ex.main_muscle }}</p>
-      <p><strong>Equipment:</strong> {{ ex.equipment }}</p>
-      <p><strong>Instructions:</strong> {{ ex.instructions|truncatewords:30 }}</p>
-    </div>
-  {% empty %}
-    <p>No exercises found.</p>
-  {% endfor %}
-</body>
-</html>
+  <!-- Daftar Latihan -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for ex in exercises %}
+      <div class="bg-white border border-gray-200 rounded-xl shadow-md p-5 hover:shadow-lg transition">
+        <h2 class="text-xl font-bold text-gray-900 mb-2">{{ ex.exercise_name }}</h2>
+        <p class="text-gray-700 mb-1"><strong>Target Muscle:</strong> {{ ex.main_muscle }}</p>
+        <p class="text-gray-700 mb-1"><strong>Equipment:</strong> {{ ex.equipment }}</p>
+        <p class="text-gray-600 mb-3"><strong>Instructions:</strong> {{ ex.instructions|truncatewords:25 }}</p>
+        
+        <!-- Tombol lihat detail (aktifkan modal) -->
+        <button 
+          onclick="openExerciseModal('{{ ex.exercise_name }}', '{{ ex.main_muscle }}', '{{ ex.equipment }}', `{{ ex.instructions|escapejs }}`)" 
+          class="mt-2 w-full bg-indigo-600 text-white font-semibold rounded-md py-2 hover:bg-indigo-700 transition"
+        >
+          Lihat Detail
+        </button>
+      </div>
+    {% empty %}
+      <p class="text-center text-gray-500 col-span-full">No exercises found.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Script untuk modal -->
+<script>
+  function openExerciseModal(name, muscle, equipment, instructions) {
+    const modal = document.getElementById('generic-modal');
+    const content = document.getElementById('modal-content-target');
+    content.innerHTML = `
+      <h2 class="text-2xl font-bold mb-3 text-gray-800">${name}</h2>
+      <p class="text-gray-700 mb-2"><strong>Target Muscle:</strong> ${muscle}</p>
+      <p class="text-gray-700 mb-2"><strong>Equipment:</strong> ${equipment}</p>
+      <p class="text-gray-700"><strong>Instructions:</strong><br>${instructions}</p>
+    `;
+    modal.classList.remove('hidden');
+  }
+
+  // Tutup modal
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal-close') || e.target.id === 'generic-modal') {
+      document.getElementById('generic-modal').classList.add('hidden');
+    }
+  });
+</script>
+
+{% endblock content %}
