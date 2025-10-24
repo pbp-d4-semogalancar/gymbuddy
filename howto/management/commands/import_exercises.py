@@ -16,8 +16,6 @@ class Command(BaseCommand):
                 exercise_name=row['exercise_name'],
                 defaults={
                     'main_muscle': row['main_muscle'],
-                    'target_muscle': row['target_muscle'],
-                    'synergist_muscle': row['synergist_muscle'],
                     'equipment': row['equipment'],
                     'instructions': row['instructions'],
                 }

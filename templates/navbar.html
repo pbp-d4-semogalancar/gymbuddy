@@ -8,11 +8,17 @@
             
             <div class="hidden md:flex items-center space-x-6">
                 <ul class="flex items-center space-x-6">
-                    <li><a href="#" class="text-gray-600 hover:text-gray-900 font-semibold">How To</a></li>
+                    <!-- 🔹 perbaikan: arahkan ke halaman howto -->
+                    <li><a href="{% url 'howto:exercise_list' %}" class="text-gray-600 hover:text-gray-900 font-semibold">How To</a></li>
+                    
+                    <!-- 🔹 arahkan ke halaman log aktivitas -->
                     <li><a href="#" class="text-gray-600 hover:text-gray-900 font-semibold">Log Aktivitas</a></li>
+                    
+                    <!-- 🔹 komunitas tetap -->
                     <li><a href="{% url 'community:community_page' %}" class="text-gray-600 hover:text-gray-900 font-semibold">Komunitas</a></li>
                 </ul>
                 <div class="w-px h-6 bg-gray-300"></div>
+
                 <div class="flex items-center space-x-2">
                     {% if user.is_authenticated %}
                         {% if user.user_profile %}
@@ -28,7 +34,7 @@
                             </button>
                         {% endif %}
                         <a href="{% url 'authentication:logout_user' %}" 
-                        class="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
+                           class="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
                             Keluar
                         </a>
                     {% else %}
@@ -44,6 +50,7 @@
                 </div>
             </div>
 
+            <!-- 🔹 menu mobile -->
             <div class="md:hidden">
                 <button id="mobile-menu-button" class="text-gray-900 focus:outline-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -55,7 +62,7 @@
 
         <div id="mobile-menu" class="hidden md:hidden mt-4">
             <ul class="space-y-2">
-                <li><a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">How To</a></li>
+                <li><a href="{% url 'howto:exercise_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">How To</a></li>
                 <li><a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Log Aktivitas</a></li>
                 <li><a href="{% url 'community:community_page' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Komunitas</a></li>
             </ul>
@@ -89,21 +96,16 @@
         </div>
     </div>
 </nav>
-<nav class="w-full bg-white border-b border-gray-200 shadow-sm">
-    </nav>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-      
       const menuButton = document.getElementById('mobile-menu-button');
       const menu = document.getElementById('mobile-menu');
-
       if (menuButton && menu) {
           menuButton.addEventListener('click', function() {
               menu.classList.toggle('hidden');
           });
       }
-
   });
 </script>
 
