@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import path, include
+from planner.views import WorkoutLogView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +30,8 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     path('profile/', include('user_profile.urls')),
     path('community/', include('community.urls')),
+    path('planner/', include('planner.urls', namespace='planner')), 
+    path('log/', WorkoutLogView.as_view(), name='workout_log'),
 ]
 
 

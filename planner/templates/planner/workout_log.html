@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+
+        <h1 class="text-3xl font-bold mb-6 text-gray-900">Log Latihan Anda</h1>
+
+        <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+            <form method="GET" class="flex flex-col sm:flex-row sm:items-end space-y-3 sm:space-y-0 sm:space-x-4">
+                {% csrf_token %}
+                <div>
+                    <label for="year-filter" class="block text-sm font-medium text-gray-700 mb-1">Tahun:</label>
+                    <select name="year" id="year-filter" onchange="this.form.submit()" class="w-full sm:w-auto border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-gray-900 focus:border-gray-900 text-gray-900">
+                        {% get_current_timezone as TZ %}
+                        {% timezone TZ %}
+                            {% with current_year=timezone.now.year %}
+                                {% for year in available_years %}
+                                    <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>{{ year }}</option>
+                                {% empty %}
+                                    <option value="{{ current_year }}">{{ current_year }}</option>
+                                {% endfor %}
+                            {% endwith %}
+                        {% endtimezone %}
+                    </select>
+                </div>
+                 <div>
+                    <label for="month-filter" class="block text-sm font-medium text-gray-700 mb-1">Bulan:</label>
+                    <select name="month" id="month-filter" onchange="this.form.submit()" class="w-full sm:w-auto border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-gray-900 focus:border-gray-900 text-gray-900">
+                        {% for month in available_months %}
+                            <option value="{{ month.value }}" {% if selected_month == month.value %}selected{% endif %}>{{ month.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="week-filter" class="block text-sm font-medium text-gray-700 mb-1">Minggu:</label>
+                    <select name="week_start_date" id="week-filter" class="w-full sm:w-auto border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-gray-900 focus:border-gray-900 text-gray-900">
+                         <option value="">-- Semua Minggu --</option>
+                        {% for week in available_weeks %}
+                            <option value="{{ week.value }}" {% if selected_week_start == week.value %}selected{% endif %}>
+                                {{ week.display }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="w-full sm:w-auto bg-gray-800 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Filter Periode
+                </button>
+                 <a href="{% url 'workout_log' %}" class="w-full sm:w-auto text-center text-sm text-gray-600 hover:text-gray-900 py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-50">
+                     Reset (Bulan Ini)
+                 </a>
+            </form>
+             <p class="text-xs text-gray-500 mt-2 italic">*Pilih Tahun & Bulan untuk melihat opsi Minggu. Pilih Minggu untuk filter mingguan, atau biarkan '-- Semua Minggu --' untuk melihat data bulanan.</p>
+        </div>
+        <div class="mb-6">
+                    <a href="{% url 'planner:plan_creator' %}"
+                    class="inline-flex items-center bg-gray-900 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors shadow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Buat Rencana Baru
+                    </a>
+        </div>
+        <div class="bg-gray-50 text-gray-700 p-4 rounded-lg mb-6 shadow border border-gray-800"> {# Latar: bg-gray-50, Teks default: text-gray-700, Border: border-gray-800 #}
+            <h2 class="text-xl font-semibold mb-2 text-gray-900">Statistik {{ period_name }}</h2> {# Judul: Hitam #}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                 <p>Total Rencana: <span class="font-bold text-lg text-gray-900">{{ total_plans_period }}</span></p> {# Angka: Hitam #}
+                <p>Selesai: <span class="font-bold text-lg text-gray-900">{{ completed_plans_period }}</span></p> {# Angka: Hitam #}
+                <p>Target Tercapai (Tepat Waktu): <span class="font-bold text-2xl text-gray-900">{{ completion_percentage_period }}%</span> ({{ on_time_completed_period }}/{{ total_plans_period }})</p> {# Angka: Hitam #}
+            </div>
+             <p class="text-xs mt-2 italic text-gray-500">*Target tercapai dihitung berdasarkan log yang diselesaikan pada atau sebelum tanggal rencana dalam periode terpilih.</p> {# Teks italic: Abu-abu #}
+        </div>
+        <div id="workout-log-list" class="space-y-4">
+            {% for plan in plans %}
+                <div id="plan-item-{{ plan.id }}" class="p-4 border rounded-lg flex flex-col md:flex-row md:items-start justify-between gap-4 {% if plan.is_completed %}bg-green-50 border-green-200{% else %}bg-white shadow-sm{% endif %}">
+
+                    <div class="flex-grow">
+                        <h3 class="font-bold text-lg {% if plan.is_completed %}text-gray-600{% else %}text-gray-900{% endif %}">{{ plan.exercise.exercise_name }}</h3>
+                        <p class="text-sm {% if plan.is_completed %}text-gray-500{% else %}text-gray-700{% endif %}">
+                            {{ plan.sets }} sets x {{ plan.reps }} reps | Rencana: {{ plan.plan_date|date:"d M Y" }}
+                        </p>
+
+                        {% if plan.is_completed %}
+                            <p class="text-sm italic text-gray-500 mt-1">
+                                Selesai: {{ plan.completed_at|date:"d M Y, H:i" }}
+                                {% if plan.completed_at.date <= plan.plan_date %}
+                                    <span class="text-green-600 font-semibold">(Tepat Waktu ✅)</span>
+                                {% else %}
+                                     <span class="text-orange-600 font-semibold">(Terlambat ⚠️)</span>
+                                {% endif %}
+                           </p>
+                            {% if plan.description %}
+                               <div class="mt-2 text-sm bg-gray-100 p-2 rounded text-gray-700 border border-gray-200">
+                                   <strong>Catatan:</strong><br>
+                                   <p class="whitespace-pre-wrap">{{ plan.description|linebreaksbr }}</p>
+                               </div>
+                            {% else %}
+                                <p class="mt-2 text-sm text-gray-400 italic">(Tidak ada catatan)</p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <div class="flex-shrink-0 flex items-center space-x-2 mt-2 md:mt-0">
+                         {% if plan.is_completed %}
+                             <span class="text-green-600 font-bold text-2xl mr-1" title="Selesai">✓</span>
+                             <button
+                                type="button"
+                                data-modal-target="#generic-modal"
+                                data-load-url="{% url 'planner:load_completion_form' plan.id %}"
+                                class="bg-yellow-500 text-white py-1 px-3 rounded-md text-xs hover:bg-yellow-600 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1"
+                                title="Edit Catatan"
+                             >
+                                 Edit Catatan
+                             </button>
+                         {% else %}
+                            <button
+                                type="button"
+                                data-modal-target="#generic-modal"
+                                data-load-url="{% url 'planner:load_completion_form' plan.id %}"
+                                class="bg-green-600 text-white py-1.5 px-3 rounded-md text-sm font-semibold hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
+                            >
+                                Tandai Selesai
+                            </button>
+                         {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="bg-white rounded-lg shadow-md p-8 text-center border border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Log Latihan</h2>
+                    <p class="text-gray-500">
+                        Tidak ada rencana latihan yang ditemukan untuk periode <span class="font-medium">{{ period_name }}</span>.
+                        <br> Coba filter periode lain atau buat rencana baru di halaman <a href="{% url 'planner:plan_creator' %}" class="text-blue-600 hover:underline">Planner</a>.
+                    </p>
+                </div>
+            {% endfor %}
+        </div> 
+    </div> 
+</div>
+{% endblock content %}
