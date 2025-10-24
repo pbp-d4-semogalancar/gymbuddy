@@ -75,9 +75,9 @@
         <h1>Thread 📝 & Reply 🌐: Community Discussion</h1>
         <p>Tanyakan untuk memahami lebih banyak kegiatan workout di sini!</p>
         
-        {% if user.is_authenticated %}
         <a href="{% url 'landing_page:landing_page' %}" class="btn btn-light">&larr; Kembali ke Landing Page</a>
                 
+        {% if user.is_authenticated %}
         <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#newThreadModal">
                 + Buat Thread Diskusi Baru
             </button>
