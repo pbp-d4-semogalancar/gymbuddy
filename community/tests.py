@@ -189,9 +189,7 @@ class ThreadViewsTest(TestCase):
         """Pastikan Create AJAX redirect ke URL login yang benar."""
         response = self.client.post(self.create_ajax_url, {'title': 'New', 'content': 'Test'}, follow=True)
         
-        # FIX: Mengubah ekspektasi agar sesuai dengan output sistem: /accounts/login/
-        # Karena settings.LOGIN_URL adalah '/accounts/login/', kita gunakan path string ini.
-        expected_login_path = '/accounts/login/'
+        expected_login_path = '/auth/login/'
         expected_url = expected_login_path + '?next=' + self.create_ajax_url
 
         self.assertRedirects(response, expected_url)
