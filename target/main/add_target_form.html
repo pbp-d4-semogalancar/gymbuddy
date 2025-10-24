@@ -1,6 +1,6 @@
 <form 
     id="add-target-form"
-    action="{% url 'workoutlog:ajax_add_target' %}" 
+    action="{% url 'targetlog:ajax_add_target' %}" 
     method="POST">
     
     {% csrf_token %}
@@ -42,7 +42,7 @@
 <script>
     document.getElementById('filter-muscle').addEventListener('change', async function() {
         const muscle = this.value;
-        const url = `{% url 'workoutlog:ajax_filter_activities' %}?target_muscle=${muscle}`;
+        const url = `{% url 'target:ajax_filter_activities' %}?target_muscle=${muscle}`;
         
         try {
             const response = await fetch(url);

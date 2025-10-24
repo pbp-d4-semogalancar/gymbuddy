@@ -28,7 +28,7 @@ def gym_log_page(request):
         'targets': targets,
         'percent_complete': percent_complete,
     }
-    return render(request, 'workoutlog/gym_log.html', context)
+    return render(request, 'targetlog/gym_log.html', context)
 
 @login_required 
 def ajax_filter_activities(request):
@@ -63,7 +63,7 @@ def load_add_target_form(request):
         'target_muscles': target_muscles
     }
 
-    return render(request, 'workoutlog/partials/_add_target_form.html', context)
+    return render(request, 'targetlog/main/_add_target_form.html', context)
 
 @login_required
 def ajax_add_target(request):
@@ -95,7 +95,7 @@ def load_update_log_form(request, target_id):
     form = LogUpdateForm(instance=target) #
     
     context = {'form': form, 'target': target}
-    return render(request, 'workoutlog/partials/_update_log_form.html', context)
+    return render(request, 'targetlog/main/_update_log_form.html', context)
 
 @login_required
 def ajax_submit_log(request, target_id):

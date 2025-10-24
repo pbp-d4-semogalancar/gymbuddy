@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 
-app_name = 'workoutlog' 
+app_name = 'target' 
 
 urlpatterns = [
     path('my-log/', views.gym_log_page, name='gym_log_page'),

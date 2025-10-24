@@ -1,6 +1,6 @@
 <form 
     id="update-log-form"
-    action="{% url 'workoutlog:ajax_submit_log' target.id %}" 
+    action="{% url 'targetlog:ajax_submit_log' target.id %}" 
     method="POST">
     
     {% csrf_token %}

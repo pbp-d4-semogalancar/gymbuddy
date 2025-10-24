@@ -21,7 +21,7 @@ from planner.views import WorkoutLogView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('landing_page.urls')),
-    path('log/', include('workoutlog.urls', namespace='workoutlog')),
+    path('log/', include('target.urls', namespace='target')),
     path('auth/', include('authentication.urls', namespace='authentication')),
     path('auth/', include('authentication.urls', namespace='authentication')),
     path('admin/', admin.site.urls),

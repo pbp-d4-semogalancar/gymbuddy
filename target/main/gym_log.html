@@ -11,7 +11,7 @@
 
 <button 
     data-modal-target="#generic-modal" 
-    data-load-url="{% url 'workoutlog:load_add_target_form' %}"
+    data-load-url="{% url 'targetlog:load_add_target_form' %}"
     class="bg-gray-900 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-700">
     + Add Workout Plan
 </button>
@@ -29,7 +29,7 @@
             {% else %}
                 <button 
                     data-modal-target="#generic-modal" 
-                    data-load-url="{% url 'workoutlog:load_update_log_form' target.id %}"
+                    data-load-url="{% url 'targetlog:load_update_log_form' target.id %}"
                     class="mt-2 bg-green-600 text-white py-1 px-3 rounded-md text-sm hover:bg-green-700">
                     Mark as Done
                 </button>
