@@ -1,0 +1,44 @@
+{% extends 'community/base.html' %}
+{% block content %}
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'community:community_page' %}" class="btn">&larr; Kembali ke Semua Thread</a>
+    </div>
+
+    <div class="card" id="thread-{{ thread.id }}">
+        <div class="post-header">
+            <h1 style="font-size: 1.8em;">{{ thread.title }}</h1>
+            <span style="color: #f8f9fa;">Oleh {{ thread.user.username }} pada {{ thread.date_created|date:"d F Y, H:i" }}</span>
+        </div>
+        <hr style="border-color: #e4e6eb;">
+        <div class="post-body"><p>{{ thread.content }}</p></div>
+        
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h3>Replies</h3>
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+                {% if user.is_authenticated %}
+                    <button class="btn btn-primary reply-to-btn" data-parent-id="">Tambah Balasan</button>
+                {% endif %}
+                <select id="reply-sort-select" style="padding: 5px; border-radius: 5px; background-color: #f0f2f5; border: 1px solid #ccd0d5;">
+                    <option value="newest">Terbaru</option>
+                    <option value="oldest">Terlama</option>
+                </select>
+            </div>
+        </div>
+        <hr style="border-color: #e4e6eb; margin-top: 10px;">
+        <div id="reply-section">
+            {% for reply in replies %}{% include "community/reply.html" with reply=reply user=user %}{% empty %}
+                <p id="no-replies-yet" style="text-align: center; padding: 20px; color: #f8f9fa;">Belum ada balasan.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div id="replyModal" class="modal-overlay"> <div class="modal-content"><span class="modal-close">&times;</span><h3 id="reply-modal-title">Tulis Balasan</h3><form id="reply-form-modal" data-url="{% url 'community:add_reply_ajax' thread.id %}"><input type="hidden" id="parent-reply-id"><textarea name="content" rows="4" required></textarea><button type="submit" class="btn btn-primary">Kirim Balasan</button></form></div></div>
+    <div id="editReplyModal" class="modal-overlay"> <div class="modal-content"><span class="modal-close">&times;</span><h3>Edit Balasan</h3><form id="edit-reply-form"><input type="hidden" id="edit-reply-id"><textarea id="edit-reply-content" name="content" rows="4" required></textarea><button type="submit" class="btn btn-primary">Simpan Perubahan</button></form></div></div>
+    
+    <div id="editThreadModal" class="modal-overlay"> <div class="modal-content"><span class="modal-close">&times;</span><h3>Edit Thread</h3><form id="edit-thread-form"><input type="hidden" id="edit-thread-id"><input type="text" id="edit-thread-title" name="title" required><textarea id="edit-thread-content" name="content" rows="5" required></textarea><button type="submit" class="btn btn-primary">Simpan Perubahan</button></form></div></div>
+    
+    <div id="deleteConfirmModal" class="modal-overlay"> <div class="modal-content"><span class="modal-close">&times;</span><h3>Konfirmasi Penghapusan</h3><p>Apakah Anda yakin? Tindakan ini tidak dapat diurungkan.</p><div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;"><button class="btn cancel-delete-btn">Batal</button><button id="confirm-delete-btn" class="btn btn-danger">Ya, Hapus</button></div></div></div>
+{% endblock %}

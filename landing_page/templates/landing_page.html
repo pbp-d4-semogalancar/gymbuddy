@@ -4,39 +4,127 @@
 {% block title %}Selamat Datang di GymBuddy{% endblock title %}
 
 {% block content %}
-
+{% include 'navbar.html' %}
 <section class="text-center py-20 bg-gray-900 text-white">
-    <h1 class="text-5xl font-bold">Bangun Tubuh Impianmu</h1>
-    <p class="text-xl mt-4">Rekomendasi latihan spesifik, pencatatan progres.</p>
+    <h1 class="text-5xl font-bold">Bangun Tubuh Impianmu Bersama GymBuddy</h1>
+    <p class="text-xl mt-4">Say no to olahraga ribet! 💪🏋️‍♂️</p>
     
-    <a href="{% url 'workoutlog:gym_log_page' %}" 
+    <a href="#" 
        class="mt-8 inline-block bg-white text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
-        Mulai Lacak Progres
+        Mulai workout mu sekarang
     </a>
 </section>
 
 <section id="features" class="py-16">
-    <h2 class="text-3xl font-bold text-center mb-10">Fitur Kami</h2>
+    <h2 class="text-3xl font-bold text-center mb-10">Kamu butuh yang mana?</h2>
     
     <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto px-4">
 
-        <a href="#" class="block text-center p-8 border bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <h3 class="text-2xl font-semibold text-gray-900">Community</h3>
-            <p class="text-gray-600 mt-2">Berbagi tips dan motivasi dengan sesama member.</p>
-        </a>
+        <div class="relative h-80 rounded-lg shadow-xl overflow-hidden bg-cover bg-center group"
+             style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://d1vbn70lmn1nqe.cloudfront.net/prod/wp-content/uploads/2021/06/15012412/kesehatan-olahraga.jpg.webp');">
+            
+            <div class="absolute inset-0 flex flex-col justify-between p-6 text-white">
+                <div>
+                    <h3 class="text-3xl font-semibold">How To</h3>
+                    <p class="text-gray-200 mt-2">Jelajahi tutorial olahraga yang pas buat kamu 🫵</p>
+                </div>
+                <a href="#" 
+                   class="w-full bg-white text-gray-900 font-bold py-3 px-4 rounded-lg text-center 
+                          transform transition-transform group-hover:scale-105">
+                    Mulai Belajar
+                </a>
+            </div>
+        </div>
 
-        <a href="#" class="block text-center p-8 border bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <h3 class="text-2xl font-semibold text-gray-900">How To</h3>
-            <p class="text-gray-600 mt-2">Jelajahi tutorial workout dengan gerakan yang benar.</p>
-        </a>
-
-        <a href="{% url 'workoutlog:gym_log_page' %}" 
-           class="block text-center p-8 border-2 border-gray-900 bg-white rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300">
-            <h3 class="text-2xl font-semibold text-gray-900">Log Aktivitas</h3>
-            <p class="text-gray-600 mt-2">Catat dan lacak semua progres latihanmu di sini.</p>
-        </a>
+        <div class="relative h-80 rounded-lg shadow-xl overflow-hidden bg-cover bg-center group"
+             style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQv4bmY0aG8ns4zQ3RmJ1hW9-UVudkFX2z5Lg&s');">
+            
+            <div class="absolute inset-0 flex flex-col justify-between p-6 text-white">
+                <div>
+                    <h3 class="text-3xl font-semibold">Log Aktivitas</h3>
+                    <p class="text-gray-200 mt-2">Catat dan lacak semua progres latihanmu di sini 📝</p>
+                </div>
+                <a href="#" 
+                   class="w-full bg-white text-gray-900 font-bold py-3 px-4 rounded-lg text-center 
+                          transform transition-transform group-hover:scale-105">
+                    Lacak Progres
+                </a>
+            </div>
+        </div>
+        
+        <div class="relative h-80 rounded-lg shadow-xl overflow-hidden bg-cover bg-center group"
+             style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://pbs.twimg.com/media/CAw4RgSU8AAj-mQ.jpg');">
+            
+            <div class="absolute inset-0 flex flex-col justify-between p-6 text-white">
+                <div>
+                    <h3 class="text-3xl font-semibold">Komunitas</h3>
+                    <p class="text-gray-200 mt-2">Bingung? Langsung tanyain disini aja! 👥</p>
+                </div>
+                <a href="{% url 'community:community_page' %}" 
+                   class="w-full bg-white text-gray-900 font-bold py-3 px-4 rounded-lg text-center 
+                          transform transition-transform group-hover:scale-105">
+                    Gabung Komunitas
+                </a>
+            </div>
+        </div>
         
     </div>
 </section>
+
+<section id="how-it-works" class="py-20 bg-cover bg-center" 
+         style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://img-cdn.medkomtek.com/Pv3Xkt-jnKJc7w0I1rWGdRKcyJM=/0x0/smart/filters:quality(100):format(webp)/article/fEVC5vtQ_0CpGV3wWuPAi/original/074958400_1535954722-Orang-dengan-Gangguan-Kesehatan-Ini-Jangan-Ikut-Lari-Maraton-By-Pavel1964-shutterstock_1064515046.jpg')">
+    <div class="container mx-auto px-4 text-center">
+        
+        <h2 class="text-3xl font-bold text-white mb-10">Mulai Dalam 3 Langkah</h2>
+        <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            
+            <div class="p-6">
+                <div class="flex items-center justify-center h-16 w-16 bg-white text-gray-900 rounded-full mx-auto text-2xl font-bold">1</div>
+                <h3 class="text-xl font-semibold mt-4 text-white">Tutorial</h3>
+                <p class="text-gray-200 mt-2">Temukan gerakan workout yang sesuai dengan target ototmu di "How To" ❓</p>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center justify-center h-16 w-16 bg-white text-gray-900 rounded-full mx-auto text-2xl font-bold">2</div>
+                <h3 class="text-xl font-semibold mt-4 text-white">Lakukan Workout</h3>
+                <p class="text-gray-200 mt-2">Ikuti tutorial dan lakukan latihanmu dengan gerakan yang benar dan aman 👌</p>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center justify-center h-16 w-16 bg-white text-gray-900 rounded-full mx-auto text-2xl font-bold">3</div>
+                <h3 class="text-xl font-semibold mt-4 text-white">Lacak Progres</h3>
+                <p class="text-gray-200 mt-2">Catat latihanmu di "Log Aktivitas" untuk melihat perkembanganmu 📈</p>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+{% if user.is_authenticated %}
+    <section id="cta-community" class="py-16 bg-gray-100"> 
+        <div class="container mx-auto px-4 text-center">
+            
+            <h2 class="text-3xl font-bold text-gray-900">Jelajahi Komunitas</h2>
+            <p class="text-lg mt-4 text-gray-600">Yuk, tanya-tanya dan sharing kegiatan workoutmu di komunitas!</p>
+            
+            <a href="{% url 'community:community_page' %}" 
+               class="mt-8 inline-block bg-gray-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors">
+                Masuk ke Komunitas
+            </a>
+        </div>
+    </section>
+
+{% else %}
+    <section id="cta-register" class="py-20 bg-gray-900 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold">Siap Memulai Perjalanan Fitness-mu?</h2>
+            <p class="text-xl mt-4 text-gray-300">Yuk, buat akun gratis dan mulai lacak progresmu hari ini!</p>
+            <a href="{% url 'authentication:register_user' %}" 
+               class="mt-8 inline-block bg-white text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+                Daftar Gratis Sekarang
+            </a>
+        </div>
+    </section>
+{% endif %}
 
 {% endblock content %}
