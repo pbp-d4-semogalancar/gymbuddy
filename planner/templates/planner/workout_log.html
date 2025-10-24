@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        
+        <h1 class="text-3xl font-bold mb-8 text-gray-900">Log Latihan Anda</h1>
+
+        {% if grouped_plans %}
+            <div class="space-y-6">
+                {% for data in grouped_plans.values %}
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="p-5">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                                {{ data.date_obj|date:"d F Y" }}
+                            </h2>
+
+                            <ul class="space-y-3">
+                                {% for plan in data.plans %}
+                                    <li class="flex items-center p-3 bg-gray-50 rounded-md">
+                                        <div class="flex-shrink-0">
+                                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">
+                                                {{ plan.exercise.exercise_name }}
+                                            </p>
+                                            <p class="text-sm text-gray-600">
+                                                {{ plan.sets }} set x {{ plan.reps }} reps
+                                            </p>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+        {% else %}
+            <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                <h2 class="text-xl font-semibold text-gray-700 mb-2">Log Anda Masih Kosong</h2>
+                <p class="text-gray-500">
+                    Rencana yang Anda buat di halaman "Planner" akan muncul di sini.
+                </p>
+                <a href="{% url 'planner:plan_creator' %}" class="mt-4 inline-block bg-gray-900 text-white px-5 py-2 text-sm font-semibold rounded-md hover:bg-gray-700 transition-colors">
+                    Buat Rencana
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock content %}

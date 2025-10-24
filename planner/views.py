@@ -153,4 +153,35 @@ class GetPlansForDateAPIView(LoginRequiredMixin, View):
         except Exception as e:
             print(f"Error in GetPlansForDateAPIView: {e}")
             return JsonResponse({'error': 'Gagal mengambil data rencana.'}, status=500)
+        
+class WorkoutLogView(LoginRequiredMixin, TemplateView):
+    template_name = 'planner/workout_log.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get all plans for the logged-in user, newest first
+        all_plans = WorkoutPlan.objects.filter(user=self.request.user).order_by('-plan_date')
+        
+        # Group the plans by date for the template
+        # We'll create a dictionary like: {'2025-10-24': [plan1, plan2], '2025-10-23': [plan3]}
+        grouped_plans = {}
+        for plan in all_plans:
+            # .isoformat() gives "YYYY-MM-DD"
+            date_str = plan.plan_date.isoformat()
+            
+            if date_str not in grouped_plans:
+                # If this is the first time we see this date, create an entry
+                grouped_plans[date_str] = {
+                    'date_obj': plan.plan_date, # Store the date object for formatting
+                    'plans': [] # Start an empty list for its plans
+                }
+            
+            # Add the current plan to its date's list
+            grouped_plans[date_str]['plans'].append(plan)
+            
+        context['grouped_plans'] = grouped_plans
+        return context
+
+
 
