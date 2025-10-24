@@ -1,8 +1,48 @@
+{% load static %}
+
 <div class="reply-card" id="reply-{{ reply.id }}" data-timestamp="{{ reply.date_created.timestamp }}">
-    <div class="post-header">
-        <span><strong>{{ reply.user.username }}</strong><small style="color:#f8f9fa;"> · {{ reply.date_created|date:"d M Y" }}</small></span>
+    <div class="post-header" style="display: flex; align-items: center; gap: 10px;">
+        <!-- Profile Picture Kiri -->
+        {% if reply.user.user_profile %}
+            <a href="{% url 'user_profile:detail_profile' reply.user.id reply.user.username %}">
+                {% if reply.user.user_profile.profile_picture %}
+                    <img src="{{ reply.user.user_profile.profile_picture.url }}" 
+                        alt="Avatar" 
+                        style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
+                {% else %}
+                    <img src="{% static 'images/default-avatar.png' %}" 
+                        alt="Default Avatar" 
+                        style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
+                {% endif %}
+            </a>
+        {% else %}
+            <img src="{% static 'images/default-avatar.png' %}" 
+                alt="Default Avatar" 
+                style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
+        {% endif %}
+
+        <!-- Nama + Tanggal Kanan -->
+        <div style="display: flex; flex-direction: column;">
+            {% if reply.user.user_profile %}
+                <span style="display: flex; align-items: baseline; gap: 5px;">
+                    <a href="{% url 'user_profile:detail_profile' reply.user.id reply.user.username %}" 
+                    style="font-weight:bold; color:white; text-decoration:none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ reply.user.user_profile.display_name }}
+                    </a>
+                    <small style="color:#f8f9fa;">• {{ reply.date_created|date:"d M Y, H:i" }}</small>
+                </span>
+            {% else %}
+                <span style="display: flex; align-items: baseline; gap: 5px;">
+                    <strong style="color:white;">@{{ reply.user.username }}</strong>
+                    <small style="color:#f8f9fa;">• {{ reply.date_created|date:"d M Y, H:i" }}</small>
+                </span>
+            {% endif %}
+        </div>
     </div>
+
     <div class="post-body reply-content"><p>{{ reply.content|linebreaks }}</p></div>
+
+
     <div class="post-meta" style="border: none; padding-top: 5px;">
         <span class="meta-actions">
             {% if user.is_authenticated %}
@@ -11,6 +51,8 @@
             {% if user == reply.user %}<a class="edit-reply-btn" data-reply-id="{{ reply.id }}" data-content="{{ reply.content }}">Edit</a><a class="delete-link delete-reply-btn" data-reply-id="{{ reply.id }}">Hapus</a>{% endif %}
         </span>
     </div>
+
+
     <div class="nested-replies" id="children-of-{{ reply.id }}" style="border-left: none;">
         {% for child in reply.children.all %}
             <hr style="border-color: #e4e6eb; margin: 15px 0;">
