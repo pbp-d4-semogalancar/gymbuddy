@@ -76,49 +76,6 @@ class PlanCreatorView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         """Tambahkan data statistik dan filter ke context."""
         context = super().get_context_data(**kwargs)
-        filtered_plans = context['plans'] #
-
-        total_plans = filtered_plans.count()
-        completed_plans = filtered_plans.filter(is_completed=True)
-        completed_count = completed_plans.count()
-
-        on_time_completed = 0
-        for plan in completed_plans:
-             if plan.completed_at and plan.completed_at.date() <= plan.plan_date:
-                on_time_completed += 1
-
-        percentage = (on_time_completed / total_plans) * 100 if total_plans > 0 else 0
-
-        context['total_plans_month'] = total_plans
-        context['completed_plans_month'] = completed_count
-        context['on_time_completed_month'] = on_time_completed
-        context['completion_percentage_month'] = round(percentage, 1) 
-        years = WorkoutPlan.objects.filter(user=self.request.user)\
-                                   .annotate(year=ExtractYear('plan_date'))\
-                                   .values_list('year', flat=True).distinct().order_by('-year')
-        if not years.exists(): # Gunakan .exists() untuk check queryset kosong
-             years = [timezone.now().year]
-        nama_bulan_id = [
-            None, 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-        ]
-        months = [{'value': i, 'name': nama_bulan_id[i]} for i in range(1, 13)]
-        weeks = get_weeks_in_month(self.year_for_context, self.month_for_context)
-
-        context['available_years'] = years
-        context['available_months'] = months
-        context['available_weeks'] = weeks
-        context['selected_year'] = self.year_for_context
-        context['selected_month'] = self.month_for_context
-        context['selected_week_start'] = self.selected_week_start
-        month_display_name = nama_bulan_id[self.month_for_context] 
-
-        if self.filter_type == 'week' and self.selected_week_start:
-             selected_week_obj = next((w for w in weeks if w['value'] == self.selected_week_start), None)
-             context['period_name'] = f"Minggu ({selected_week_obj['display'] if selected_week_obj else self.selected_week_start}) - {month_display_name} {self.year_for_context}" # Tambahkan bulan & tahun
-        else:
-             context['period_name'] = f"Bulan {month_display_name} {self.year_for_context}"
-        context['timezone'] = timezone
 
         return context
 

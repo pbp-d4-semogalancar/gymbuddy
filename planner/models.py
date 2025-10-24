@@ -1,4 +1,3 @@
-# planner/models.py
 from django.db import models
 from django.conf import settings
 from howto.models import Exercise

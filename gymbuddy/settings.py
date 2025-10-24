@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'landing_page',
-    'target',
     'howto',
     'planner'
 ]
