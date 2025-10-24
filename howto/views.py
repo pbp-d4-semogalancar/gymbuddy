@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Exercise
+from django.http import HttpResponse
 
 def exercise_list(request):
     # Ambil semua data exercise
@@ -25,3 +26,11 @@ def exercise_list(request):
         'selected_muscle': selected_muscle,
         'selected_equipment': selected_equipment,
     })
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def exercise_detail(request, pk):
+    exercise = get_object_or_404(Exercise, pk=pk)
+    return render(request, 'howto/exercise_detail.html', {'exercise': exercise})
+

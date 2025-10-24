@@ -1,66 +1,57 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}Workout Explorer{% endblock title %}
-
+{% block title %}Workout Explorer{% endblock %}
 {% block content %}
 {% include 'navbar.html' %}
 
-<!-- Hero Section -->
-<section class="bg-gray-900 text-white py-20 text-center">
-  <h1 class="text-5xl font-extrabold mb-4 flex items-center justify-center gap-2">
-    💪 Workout Explorer
-  </h1>
-  <p class="text-lg text-gray-300">Jelajahi berbagai latihan sesuai otot dan alat yang kamu punya!</p>
+<section class="bg-gray-900 text-white py-16 text-center">
+  <h1 class="text-4xl font-bold">💪 Workout Explorer</h1>
 </section>
 
-<!-- Filter Section -->
-<section class="bg-gray-50 py-10 -mt-10 rounded-t-3xl shadow-inner">
-  <div class="container mx-auto px-6">
-    <div class="bg-white shadow-lg rounded-2xl p-8 max-w-3xl mx-auto -mt-20 relative z-10">
-      <form method="get" class="flex flex-col md:flex-row items-center justify-center gap-6">
-        <div class="flex items-center gap-2">
-          <label for="muscle" class="font-semibold text-gray-800">Filter by Muscle:</label>
-          <select name="muscle" id="muscle" onchange="this.form.submit()"
-                  class="border border-gray-300 rounded-lg px-3 py-2 focus:ring focus:ring-gray-400">
-            <option value="">-- All --</option>
-            {% for m in muscles %}
-              <option value="{{ m }}" {% if selected_muscle == m %}selected{% endif %}>{{ m }}</option>
-            {% endfor %}
-          </select>
-        </div>
+<section class="bg-gray-50 py-10">
+  <div class="max-w-6xl mx-auto px-4">
+    
+    <!-- FILTER -->
+    <form method="get" class="flex flex-wrap justify-center gap-4 mb-10">
+      <div>
+        <label for="muscle" class="font-semibold mr-2">Filter by Muscle:</label>
+        <select name="muscle" id="muscle" onchange="this.form.submit()" class="border rounded-lg p-2">
+          <option value="">-- All --</option>
+          {% for m in muscles %}
+            <option value="{{ m }}" {% if selected_muscle == m %}selected{% endif %}>{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-        <div class="flex items-center gap-2">
-          <label for="equipment" class="font-semibold text-gray-800">Equipment:</label>
-          <select name="equipment" id="equipment" onchange="this.form.submit()"
-                  class="border border-gray-300 rounded-lg px-3 py-2 focus:ring focus:ring-gray-400">
-            <option value="">-- All --</option>
-            {% for e in equipments %}
-              <option value="{{ e }}" {% if selected_equipment == e %}selected{% endif %}>{{ e }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </form>
-    </div>
-  </div>
-</section>
+      <div>
+        <label for="equipment" class="font-semibold mr-2">Equipment:</label>
+        <select name="equipment" id="equipment" onchange="this.form.submit()" class="border rounded-lg p-2">
+          <option value="">-- All --</option>
+          {% for e in equipments %}
+            <option value="{{ e }}" {% if selected_equipment == e %}selected{% endif %}>{{ e }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
 
-<!-- Exercise Cards -->
-<section class="bg-gray-50 py-16">
-  <div class="container mx-auto px-6">
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <!-- CARD GRID -->
+    <div class="grid md:grid-cols-3 gap-6">
       {% for ex in exercises %}
-        <div class="bg-white rounded-xl shadow-md hover:shadow-xl p-6 border border-gray-200 transition-all duration-300">
-          <h2 class="text-2xl font-bold text-gray-900 mb-3">{{ ex.exercise_name }}</h2>
-          <p class="text-gray-700 mb-2"><strong class="text-gray-900">Target Muscle:</strong> {{ ex.main_muscle }}</p>
-          <p class="text-gray-700 mb-2"><strong class="text-gray-900">Equipment:</strong> {{ ex.equipment }}</p>
-          <p class="text-gray-600 text-sm"><strong class="text-gray-900">Instructions:</strong> {{ ex.instructions|truncatewords:25 }}</p>
-          <div class="mt-4 text-right">
-            <a href="#" class="text-blue-600 font-semibold hover:underline text-sm">Lihat Detail →</a>
-          </div>
+        <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+          <h2 class="text-xl font-bold mb-2">{{ ex.exercise_name }}</h2>
+          <p><strong>Target Muscle:</strong> {{ ex.main_muscle }}</p>
+          <p><strong>Equipment:</strong> {{ ex.equipment }}</p>
+          <p class="text-gray-700 mt-2 text-sm"><strong>Instructions:</strong> {{ ex.instructions|truncatewords:25 }}</p>
+
+          <!-- TOMBOL AJAX MODAL -->
+          <button 
+              data-load-url="{% url 'howto:exercise_detail' ex.pk %}" 
+              class="text-blue-600 font-semibold mt-3 hover:underline">
+              Lihat Detail →
+          </button>
         </div>
       {% empty %}
-        <p class="text-center text-gray-500 col-span-full">Tidak ada latihan yang ditemukan.</p>
+        <p class="text-center text-gray-600">No exercises found.</p>
       {% endfor %}
     </div>
   </div>
