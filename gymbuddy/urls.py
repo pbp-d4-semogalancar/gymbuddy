@@ -16,10 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from planner.views import WorkoutLogView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('landing_page.urls')),
     path('log/', include('workoutlog.urls', namespace='workoutlog')),
     path('auth/', include('authentication.urls', namespace='authentication')),
+    path('auth/', include('authentication.urls', namespace='authentication')),
+    path('admin/', admin.site.urls),
+    path('howto/', include('howto.urls')),
+    path('planner/', include('planner.urls', namespace='planner')),
+    path('log/', WorkoutLogView.as_view(), name='workout_log'),
+
 ]
