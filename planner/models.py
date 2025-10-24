@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
-# Correctly import the Exercise model from the 'howto' app
 from howto.models import Exercise 
+import datetime 
 
 class WorkoutPlan(models.Model):
     """
@@ -26,12 +26,14 @@ class WorkoutPlan(models.Model):
     reps = models.PositiveIntegerField(
         help_text="Number of repetitions per set."
     )
-    date_created = models.DateTimeField(
-        auto_now_add=True,
-        help_text="The date and time this plan was created."
-    )
-    class Meta:
-        ordering = ['-date_created']
+    
+    plan_date = models.DateField(default=datetime.date.today)
 
     def __str__(self):
-        return f"{self.user.username}'s plan: {self.exercise.exercise_name} ({self.sets}x{self.reps})"
+        # Updated __str__ to be more descriptive!
+        return f"{self.user.username} - {self.exercise.exercise_name} ({self.sets} sets x {self.reps} reps) on {self.plan_date}"
+
+    class Meta:
+        ordering = ['plan_date', 'id']
+
+

@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>Buat Rencana Latihan - GymBuddy</title>
+<style>
+
+    #search-results-list {
+        /* Makes the dropdown appear over other content */
+        position: absolute;
+        z-index: 10;
+        width: 100%; /* Match the input width */
+        max-height: 200px;
+        overflow-y: auto;
+        /* Matches your site's card styling */
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-top: none;
+        border-radius: 0 0 0.375rem 0.375rem; /* rounded-b-md */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    #search-results-list li {
+        padding: 0.75rem 1rem; /* p-3 px-4 */
+        cursor: pointer;
+    }
+    #search-results-list li:hover {
+        background-color: #f7fafc; /* bg-gray-100 */
+    }
+    #search-results-list:empty {
+        display: none;
+    }
+</style>
+{% endblock meta %}
+
+
+<!-- This is the main content block -->
+{% block content %}
+
+<!-- Include the site-wide navbar -->
+{% include 'navbar.html' %}
+
+<!-- Main Page Content -->
+<div class="bg-white min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+
+        <!-- Page Title -->
+        <h1 class="text-3xl font-bold mb-6 text-gray-900">Buat Rencana Latihan</h1>
+
+        <!-- Form Card -->
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-6">
+            
+            <!-- 
+              The main form.
+              JavaScript will handle the 'submit' event.
+            -->
+            <form id="add-plan-form" class="space-y-4">
+                
+                <!-- This is Django's CSRF token, required for all POST requests -->
+                {% csrf_token %}
+
+                <!-- 1. Date Picker -->
+                <div>
+                    <label for="plan-date" class="block text-sm font-medium text-gray-700 mb-1">
+                        Pilih Tanggal Rencana
+                    </label>
+                    <input 
+                        type="date" 
+                        id="plan-date" 
+                        name="plan-date"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm"
+                        required
+                    >
+                </div>
+                
+                <!-- 2. Exercise Search Field (AJAX Task 1) -->
+                <div class="relative">
+                    <label for="exercise-search" class="block text-sm font-medium text-gray-700 mb-1">
+                        1. Cari Latihan
+                    </label>
+                    <input 
+                        type="text" 
+                        id="exercise-search" 
+                        name="exercise-search"
+                        placeholder="Mulai ketik (cth: 'Bench Press')..."
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm"
+                        autocomplete="off"
+                    >
+                    <!-- This hidden input will store the ID of the selected exercise -->
+                    <input type="hidden" id="selected-exercise-id" name="exercise-id">
+                    
+                    <!-- Search results will be dynamically inserted here -->
+                    <ul id="search-results-list" class="mt-1"></ul>
+                </div>
+
+                <!-- 3. Sets and Reps -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="exercise-sets" class="block text-sm font-medium text-gray-700 mb-1">
+                            2. Sets
+                        </label>
+                        <input 
+                            type="number" 
+                            id="exercise-sets" 
+                            name="exercise-sets"
+                            placeholder="cth: 3"
+                            min="1"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm"
+                        >
+                    </div>
+                    <div>
+                        <label for="exercise-reps" class="block text-sm font-medium text-gray-700 mb-1">
+                            3. Reps
+                        </label>
+                        <input 
+                            type="number" 
+                            id="exercise-reps" 
+                            name="exercise-reps"
+                            placeholder="cth: 10"
+                            min="1"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm"
+                        >
+                    </div>
+                </div>
+
+                <!-- 4. Submit Button -->
+                <button 
+                    type="submit" 
+                    id="submit-plan-button"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
+                >
+                    Tambahkan ke Rencana
+                </button>
+            </form>
+        </div>
+
+        <!-- Dynamic Plan List -->
+        <div class="mt-10">
+            <!-- This title will be updated by JavaScript -->
+            <h2 id="plan-title" class="text-2xl font-bold text-gray-900 mb-4">
+                Memuat Rencana...
+            </h2>
+            
+            <!-- This list will be filled by JavaScript -->
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-6 min-h-[100px]">
+                <ul id="current-plan-list" class="space-y-3">
+                    <!-- Default message, will be cleared by JavaScript -->
+                    <li id="empty-plan-message" class="text-gray-500">
+                        Pilih tanggal untuk melihat rencana Anda.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- 
+  This script MUST be inside the content block, at the end.
+  It will run *after* the DOM is loaded.
+-->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- 1. Get all element references ---
+    const planDateInput = document.getElementById('plan-date');
+    const searchInput = document.getElementById('exercise-search');
+    const selectedExerciseIdInput = document.getElementById('selected-exercise-id');
+    const searchResultsList = document.getElementById('search-results-list');
+    
+    const addPlanForm = document.getElementById('add-plan-form');
+    const setsInput = document.getElementById('exercise-sets');
+    const repsInput = document.getElementById('exercise-reps');
+    
+    const planTitle = document.getElementById('plan-title');
+    const planList = document.getElementById('current-plan-list');
+    
+    // *** FIX FOR DUPLICATES ***
+    // We create the "empty" message once and store it, so we can re-add it.
+    const emptyPlanMessage = document.createElement('li');
+    emptyPlanMessage.id = 'empty-plan-message';
+    emptyPlanMessage.className = 'text-gray-500';
+    emptyPlanMessage.textContent = 'Belum ada latihan yang ditambahkan untuk tanggal ini.';
+
+    // Get the CSRF token from the form
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    // --- 2. Helper Functions ---
+
+    /**
+     * Formats a YYYY-MM-DD date string into a user-friendly local format.
+     * e.g., "2025-10-24" -> "24 Oktober 2025" (in Indonesian locale)
+     */
+    function formatLocalDate(dateString) {
+        // Create date object assuming local timezone (since it's just a date)
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        // Using 'id-ID' for Indonesian date formatting, fallback to default
+        return new Intl.DateTimeFormat(['id-ID', 'default'], options).format(date);
+    }
+
+    /**
+     * Creates and adds a single exercise item to the DOM list.
+     */
+    function addPlanItemToDOM(plan) {
+        // *** FIX FOR DUPLICATES ***
+        // Remove the "empty" message if it's currently there.
+        const emptyMsg = document.getElementById('empty-plan-message');
+        if (emptyMsg) {
+            emptyMsg.remove();
+        }
+
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center text-gray-700';
+        li.textContent = `${plan.exercise_name} - ${plan.sets} set x ${plan.reps} reps`;
+        // You could add a "delete" button here in the future
+        planList.appendChild(li);
+    }
+
+    /**
+     * Fetches all plans for the given date (YYYY-MM-DD) and updates the DOM.
+     * This is our new dynamic loading function.
+     */
+    async function loadPlansForDate(dateString) {
+        // 1. Clear the current list
+        planList.innerHTML = ''; // Remove all items
+        
+        // 2. Update the title
+        planTitle.textContent = `Rencana Latihan untuk ${formatLocalDate(dateString)}`;
+
+        try {
+            // 3. Fetch new data from our new API view
+            const response = await fetch(`/planner/api/get-plans-for-date/?date=${dateString}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // 4. Populate the list
+            if (data.plans && data.plans.length > 0) {
+                data.plans.forEach(plan => {
+                    addPlanItemToDOM(plan);
+                });
+            } else {
+                // 5. Show the empty message if no plans are found
+                // *** FIX FOR DUPLICATES ***
+                // We add our stored "empty" message element.
+                planList.appendChild(emptyPlanMessage);
+            }
+
+        } catch (error) {
+            console.error('Error fetching plans:', error);
+            planList.innerHTML = '<li class="text-red-500">Gagal memuat rencana.</li>';
+            // Use toast to show user-friendly error
+            if (window.showToast) {
+                window.showToast('Gagal memuat rencana.', 'error');
+            }
+        }
+    }
+
+
+    // --- 3. Live Search Logic (for exercise input) ---
+
+    searchInput.addEventListener('input', async (e) => {
+        const query = e.target.value.trim();
+        searchResultsList.innerHTML = ''; // Clear old results
+
+        if (query.length < 2) {
+            return; // Don't search for just one letter
+        }
+
+        try {
+            const response = await fetch(`/planner/search-exercises/?q=${query}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+
+            if (data.exercises && data.exercises.length > 0) {
+                data.exercises.forEach(exercise => {
+                    const li = document.createElement('li');
+                    li.textContent = exercise.name;
+                    // Store the ID and name on the element itself
+                    li.dataset.id = exercise.id;
+                    li.dataset.name = exercise.name;
+                    searchResultsList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'Tidak ada hasil ditemukan.';
+                li.style.color = 'gray';
+                searchResultsList.appendChild(li);
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+            searchResultsList.innerHTML = '<li>Gagal memuat hasil.</li>';
+        }
+    });
+
+    // Handle clicking on a search result
+    searchResultsList.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI' && e.target.dataset.id) {
+            // Put the selected name in the search box
+            searchInput.value = e.target.dataset.name;
+            // Store the ID in our hidden input
+            selectedExerciseIdInput.value = e.target.dataset.id;
+            // Clear the results
+            searchResultsList.innerHTML = '';
+        }
+    });
+
+
+    // --- 4. Add Plan Item Logic (for form submission) ---
+
+    addPlanForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Stop the page from reloading
+
+        // Get all values from the form
+        const exerciseId = parseInt(selectedExerciseIdInput.value, 10);
+        const sets = parseInt(setsInput.value, 10);
+        const reps = parseInt(repsInput.value, 10);
+        const planDate = planDateInput.value;
+
+        // --- Basic validation ---
+        if (!planDate) {
+            window.showToast('Silakan pilih tanggal.', 'error');
+            return;
+        }
+        if (!exerciseId) {
+            window.showToast('Silakan cari dan pilih latihan.', 'error');
+            return;
+        }
+        if (!sets || sets <= 0) {
+            window.showToast('Silakan masukkan jumlah set yang valid.', 'error');
+            return;
+        }
+        if (!reps || reps <= 0) {
+            window.showToast('Silakan masukkan jumlah reps yang valid.', 'error');
+            return;
+        }
+
+        // Prepare data to send to Django
+        const postData = {
+            exercise_id: exerciseId,
+            sets: sets,
+            reps: reps,
+            plan_date: planDate
+        };
+
+        try {
+            const response = await fetch('/planner/api/add-plan/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(postData)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                // Show the error from the server (e.g., "Invalid date")
+                throw new Error(data.error || `HTTP error! status: ${response.status}`);
+            }
+
+            // --- Success! ---
+            window.showToast('Latihan berhasil ditambahkan!', 'success');
+            
+            // Add the new item to the list on the page
+            addPlanItemToDOM(data);
+
+            // Clear the form fields for the next entry
+            searchInput.value = '';
+            selectedExerciseIdInput.value = '';
+            setsInput.value = '';
+            repsInput.value = '';
+            searchInput.focus(); // Put cursor back in search box
+
+        } catch (error) {
+            console.error('Submit error:', error);
+            // Check if showToast exists before calling it
+            if (window.showToast) {
+                window.showToast(error.message, 'error');
+            } else {
+                // Fallback if toast is still broken
+                console.error('showToast function not found!');
+            }
+        }
+    });
+
+
+    // --- 5. Event Listener for Date Picker ---
+
+    planDateInput.addEventListener('change', (e) => {
+        const selectedDate = e.target.value;
+        if (selectedDate) {
+            loadPlansForDate(selectedDate);
+        }
+    });
+
+
+
+    const today = new Date().toISOString().split('T')[0];
+    planDateInput.value = today;
+    
+    loadPlansForDate(today);
+
+});
+</script>
+
+{% endblock content %}
+

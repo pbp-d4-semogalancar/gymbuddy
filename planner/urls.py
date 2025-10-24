@@ -10,5 +10,7 @@ urlpatterns = [
 
     path('api/add-plan/', views.AddPlanAPIView.as_view(), name='api_add_plan'
     ),
+    path('api/get-plans-for-date/', views.GetPlansForDateAPIView.as_view(), name='get_plans_for_date'
+    ),
 ]
 
