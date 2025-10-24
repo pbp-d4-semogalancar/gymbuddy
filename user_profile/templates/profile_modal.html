@@ -1,0 +1,302 @@
+{% load static %}
+<!-- Modal Profile -->
+<div id="profileModal"
+    class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50">
+    <div id="profileModalContent"
+        class="bg-white rounded-lg shadow-lg w-5/6 sm:w-3/5 md:w-1/2 lg:w-2/5 xl:w-1/3 max-h-screen overflow-y-auto transform scale-95 opacity-0 transition-all duration-150">
+
+        <!-- Modal header -->
+        <div class="flex items-center justify-between p-4 border-b">
+            <h2 class="text-4xl font-bold text-gray-800 text-center flex-1" id="modalTitle">Lengkapi Profilmu</h2>
+            <button type="button"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto"
+                onclick="hideModal()">
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="px-6 py-4 space-y-6">
+            <form id="profileForm" enctype="multipart/form-data"
+                data-create-url="{% url 'user_profile:create_profile_ajax' %}"
+                data-edit-url="{% url 'user_profile:edit_profile_ajax' %}">
+                <!-- Preview Foto Profil -->
+                <div class="flex flex-col items-center text-center p-10 mb-8 border-b">
+                    <img id="profile-preview" src="{% static 'images/default-avatar.png' %}"
+                        class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5 cursor-pointer"
+                        alt="Preview Profile">
+                    <input type="file" name="profile_picture" id="id_profile_picture" class="hidden" accept="image/*">
+                </div>
+
+                <!-- Display Name -->
+                <div>
+                    <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">Display Name</h3>
+                    <input type="text" name="display_name" class="w-full border p-2 rounded" placeholder="Nama tampil"
+                        required>
+                </div>
+
+                <!-- Bio -->
+                <div>
+                    <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">Bio</h3>
+                    <textarea name="bio" class="w-full border p-2 rounded" rows="4"
+                        placeholder="Tulis sedikit tentang dirimu"></textarea>
+                </div>
+
+                <!-- Favorite Workouts -->
+                <div>
+                    <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">Workout Favorit
+                    </h3>
+                    <div class="flex flex-wrap gap-2" id="favorite-workouts">
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="flex flex-col sm:flex-row gap-4 p-6 border-t border-gray-200 rounded-b">
+                    <button type="button"
+                        class="order-2 sm:order-1 px-6 py-3 border bg-gray-800 text-white rounded-md font-medium hover:bg-red transition-colors"
+                        onclick="hideModal()">Cancel</button>
+                    <button type="submit"
+                        class="order-1 sm:order-2 flex-1 bg-gray-800 text-white px-6 py-3 rounded-md font-medium hover:bg-blue transition-colors">
+                        Simpan Profil
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="deleteConfirmModal"
+    class="hidden fixed inset-0 z-60 w-full flex items-center justify-center bg-gray-900 bg-opacity-60">
+    <div id="deleteConfirmModalContent"
+        class="bg-white rounded-lg shadow-lg w-11/12 sm:w-2/5 md:w-1/3 lg:w-1/4 max-h-screen overflow-y-auto transform scale-95 opacity-0 transition-all duration-150">
+
+        <div class="flex items-center justify-between p-4 border-b">
+            <h2 class="text-2xl font-bold text-gray-800">Hapus Profil?</h2>
+            <button type="button"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto"
+                onclick="hideDeleteModal()">
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="px-6 py-4 space-y-4">
+            <p class="text-gray-700">
+                Apakah Anda yakin ingin menghapus profil Anda?
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row-reverse gap-4 p-6 border-t border-gray-200 rounded-b">
+            
+            <form id="deleteProfileForm" method="POST" action=""> {% csrf_token %}
+                <button type="submit"
+                    class="w-full bg-red-600 text-white px-6 py-3 rounded-md font-medium hover:bg-red-700 transition-colors">
+                    Hapus
+                </button>
+            </form>
+            
+            <button type="button"
+                class="w-full px-6 py-3 border bg-gray-100 text-gray-800 rounded-md font-medium hover:bg-gray-200 transition-colors"
+                onclick="hideDeleteModal()">
+                Batal
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== DATA WORKOUT =====
+    const WORKOUTS = [
+        { value: "bench-press", label: "Bench Press (Dada)" },
+        { value: "push-up", label: "Push-up (Dada / Lengan)" },
+        { value: "pull-up", label: "Pull-up (Punggung / Lengan)" },
+        { value: "deadlift", label: "Deadlift (Punggung / Kaki)" },
+        { value: "squat", label: "Squat" },
+        { value: "lunges", label: "Lunges" },
+        { value: "shoulder-press", label: "Shoulder Press" },
+        { value: "bicep-curl", label: "Bicep Curl" },
+        { value: "tricep-dips", label: "Tricep Dips" },
+        { value: "running", label: "Lari (Running)" },
+        { value: "treadmill", label: "Treadmill" },
+        { value: "cycling", label: "Bersepeda (Cycling)" },
+        { value: "rowing", label: "Rowing" },
+        { value: "jump-rope", label: "Lompat Tali (Jump Rope)" },
+        { value: "plank", label: "Plank" },
+        { value: "mountain-climber", label: "Mountain Climber" },
+        { value: "box-jump", label: "Box Jump" },
+        { value: "kettlebell-swing", label: "Kettlebell Swing" },
+        { value: "yoga", label: "Yoga" },
+        { value: "pilates", label: "Pilates" },
+        { value: "stretching", label: "Peregangan (Stretching)" },
+        { value: "zumba", label: "Zumba / Aerobik" }
+    ];
+
+    let isEditMode = false;
+    let currentUserId = null;
+
+    // SHOW DAN HIDE MODAL
+    function showModal(title = "Lengkapi Profilmu") {
+        const modal = document.getElementById('profileModal');
+        const modalContent = document.getElementById('profileModalContent');
+        document.getElementById('modalTitle').innerText = title;
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modalContent.classList.remove('opacity-0', 'scale-95');
+            modalContent.classList.add('opacity-100', 'scale-100');
+        }, 50);
+    }
+
+    function hideModal() {
+        const modal = document.getElementById('profileModal');
+        const modalContent = document.getElementById('profileModalContent');
+        modalContent.classList.remove('opacity-100', 'scale-100');
+        modalContent.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 150);
+    }
+
+    function showDeleteModal(deleteUrl) {
+        const deleteForm = document.getElementById('deleteProfileForm');
+        deleteForm.setAttribute('action', deleteUrl);
+
+        const modal = document.getElementById('deleteConfirmModal');
+        const modalContent = document.getElementById('deleteConfirmModalContent');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modalContent.classList.remove('opacity-0', 'scale-95');
+            modalContent.classList.add('opacity-100', 'scale-100');
+        }, 50);
+    }
+
+    function hideDeleteModal() {
+        const modal = document.getElementById('deleteConfirmModal');
+        const modalContent = document.getElementById('deleteConfirmModalContent');
+        modalContent.classList.remove('opacity-100', 'scale-100');
+        modalContent.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 150);
+    }
+
+    // PREVIEW PROFILE PICTURE
+    const preview = document.getElementById('profile-preview');
+    const fileInput = document.getElementById('id_profile_picture');
+    preview.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => preview.src = e.target.result;
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ENDER WORKOUTS
+    function renderWorkouts(selected = []) {
+        const container = document.getElementById('favorite-workouts');
+        container.innerHTML = '';
+        WORKOUTS.forEach(w => {
+            const label = document.createElement('label');
+            label.className = 'workout-option cursor-pointer p-3 border rounded-lg flex items-center justify-center text-center transition duration-200';
+            label.dataset.value = w.value;
+
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.name = 'favorite_workouts';
+            input.value = w.value;
+            input.className = 'hidden';
+            if (selected.includes(w.value)) input.checked = true;
+
+            const span = document.createElement('span');
+            span.className = 'font-medium';
+            span.textContent = w.label;
+
+            label.appendChild(input);
+            label.appendChild(span);
+
+            if (input.checked) {
+                label.classList.add('bg-gray-800', 'border-gray-800', 'text-white');
+            } else {
+                label.classList.add('bg-gray-100', 'border-gray-400', 'text-gray-800');
+            }
+
+            label.addEventListener('click', e => {
+                e.preventDefault();
+                input.checked = !input.checked;
+                if (input.checked) {
+                    label.classList.add('bg-gray-800', 'border-gray-800', 'text-white');
+                    label.classList.remove('bg-gray-100', 'border-gray-400', 'text-gray-800');
+                } else {
+                    label.classList.remove('bg-gray-800', 'border-gray-800', 'text-white');
+                    label.classList.add('bg-gray-100', 'border-gray-400', 'text-gray-800');
+                }
+            });
+
+            container.appendChild(label);
+        });
+    }
+
+    // LOAD PROFILE DATA UNTUK EDIT
+    function loadProfileData(userId) {
+        currentUserId = userId;
+        fetch(`/profile/json/${userId}/`)
+            .then(res => {
+                if (res.ok) return res.json();
+                else return null;  // jika profile belum ada
+            })
+            .then(data => {
+                if (data) {
+                    isEditMode = true;
+                    document.querySelector('input[name="display_name"]').value = data.display_name || '';
+                    document.querySelector('textarea[name="bio"]').value = data.bio || '';
+                    if (data.profile_picture) preview.src = data.profile_picture;
+                    renderWorkouts(data.favorite_workouts || []);
+                    showModal("Edit Profil");
+                } else {
+                    createProfileModal();
+                }
+            }).catch(err => console.error(err));
+    }
+
+    // ===== SHOW CREATE MODAL =====
+    function createProfileModal() {
+        isEditMode = false;
+        document.getElementById('modalTitle').innerText = "Lengkapi Profilmu";
+        document.querySelector('input[name="display_name"]').value = '';
+        document.querySelector('textarea[name="bio"]').value = '';
+        preview.src = "{% static 'images/default-avatar.png' %}";
+        renderWorkouts([]);
+        showModal();
+    }
+
+    // ===== SUBMIT AJAX =====
+    document.getElementById("profileForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        let url = isEditMode
+            ? "{% url 'user_profile:edit_profile_ajax' %}"
+            : "{% url 'user_profile:create_profile_ajax' %}";
+        fetch(url, {
+            method: "POST",
+            body: formData
+        }).then(res => {
+            if (res.ok) {
+                this.reset();
+                preview.src = "{% static 'images/default-avatar.png' %}";
+                hideModal();
+                showToast(isEditMode ? 'Profil berhasil diperbarui!' : 'Profil berhasil dibuat!', '', 'success');
+            } else {
+                res.json().then(data => {
+                    alert(data.error || data.message || "Terjadi kesalahan");
+                });
+            }
+        });
+    });
+
+    // ===== INISIAL RENDER =====
+    renderWorkouts();
+</script>

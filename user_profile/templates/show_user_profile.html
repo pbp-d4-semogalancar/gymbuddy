@@ -37,16 +37,17 @@
                 <!-- Tombol Edit & Delete -->
                 {% if request.user == user_profile.user %}
                 <div class="flex justify-end gap-3">
-                    <a href="{% url 'user_profile:edit_profile' %}"
+                    <button type="button" onclick="loadProfileData({{ request.user.id }})" 
                         class="flex-1 bg-gray-800 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
                         Edit Profil
-                    </a>
+                    </button>
 
-                    <a href="{% url 'user_profile:delete_profile' user_profile.user.id user_profile.user.username %}"
-                        onclick="return confirm('Yakin ingin menghapus profil ini?');"
-                        class="flex-1 bg-gray-800 hover:bg-red-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
-                        Delete Profil
-                    </a>
+                    <button type="button" 
+                            onclick="showDeleteModal('{% url 'user_profile:delete_profile' user.id user.username %}')"
+                            class="flex-1 bg-gray-800 hover:bg-red-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
+                        Hapus Profil
+                    </button>
+
                 </div>
                 {% endif %}
             </div>
@@ -91,4 +92,5 @@
         </div>
     </div>
 </div>
+{% include 'profile_modal.html' %}
 {% endblock %}

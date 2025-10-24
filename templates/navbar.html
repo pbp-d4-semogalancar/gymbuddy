@@ -21,10 +21,11 @@
                                 Halo, {{ user.username }}
                             </a>
                         {% else %}
-                            <a href="{% url 'user_profile:create_profile' %}"
-                            class="bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-md hover:bg-gray-700 transition-colors">
+                            <button type="button" 
+                                    onclick="createProfileModal()"
+                                    class="bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-md hover:bg-gray-700 transition-colors">
                                 Halo, {{ user.username }}
-                            </a>
+                            </button>
                         {% endif %}
                         <a href="{% url 'authentication:logout_user' %}" 
                         class="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
@@ -105,3 +106,5 @@
 
   });
 </script>
+
+{% include 'profile_modal.html' %}
