@@ -32,7 +32,11 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "rexy-adrian-gymbuddy.pbp.cs.ui.ac.id"
+    "rexy-adrian-gymbuddy.pbp.cs.ui.ac.id",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://rexy-adrian-gymbuddy.pbp.cs.ui.ac.id",
 ]
 
 # Application definition
@@ -49,7 +53,7 @@ INSTALLED_APPS = [
     'howto',
     'community',
     'user_profile',
-    'planner'
+    'planner',
 ]
 
 MIDDLEWARE = [
@@ -67,7 +71,9 @@ ROOT_URLCONF = 'gymbuddy.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'templates'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
