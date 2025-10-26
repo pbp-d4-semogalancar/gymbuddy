@@ -223,7 +223,7 @@ def load_completion_form(request, plan_id):
     plan = get_object_or_404(WorkoutPlan, id=plan_id, user=request.user)
     form = LogCompletionForm(instance=plan)
     context = {'form': form, 'plan': plan}
-    return render(request, 'planner/partials/_completion_form.html', context)
+    return render(request, 'planner/completion_form.html', context)
 
 @require_POST 
 @login_required
