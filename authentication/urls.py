@@ -9,8 +9,8 @@ urlpatterns = [
     path('logout/', logout_user, name='logout_user'),
     path('register/', register_user, name='register_user'),
 
-    # ==== AJAX/API (JSON response) ====
-    path('api/login/', login_user_ajax, name='login_api'),
-    path('api/logout/', logout_user_ajax, name='logout_api'),
-    path('api/register/', register_user_ajax, name='register_api'),
+    # ==== API (JSON response) ====
+    path('api/login/', login_user_api, name='login_api'),
+    path('api/logout/', logout_user_api, name='logout_api'),
+    path('api/register/', register_user_api, name='register_api'),
 ]

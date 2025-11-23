@@ -52,10 +52,10 @@ def logout_user(request):
     response.delete_cookie('last_login')
     return response
 
-# Dengan AJAX
+# UNTUK API
 
 @csrf_exempt
-def register_user_ajax(request):
+def register_user_api(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -88,7 +88,7 @@ def register_user_ajax(request):
             
             return JsonResponse({
                 "username": user.username,
-                "status": 'success',
+                "status": True,
                 "message": "User created successfully!"
             }, status=201) # Ganti ke 201 (Created)
         
@@ -102,7 +102,7 @@ def register_user_ajax(request):
         return JsonResponse({"status": False, "message": "Invalid request method."}, status=400)
 
 @csrf_exempt
-def login_user_ajax(request):
+def login_user_api(request):
     username = request.POST.get('username')
     password = request.POST.get('password')
     user = authenticate(username=username, password=password)
@@ -112,6 +112,7 @@ def login_user_ajax(request):
             context = {
                 "username": user.username,
                 "status": True,
+                "user_id": user.id,
                 "message": "Login successfully!"
             }
             return JsonResponse(context, status=200)
@@ -130,7 +131,7 @@ def login_user_ajax(request):
         return JsonResponse(context, status=401)
 
 @csrf_exempt
-def logout_user_ajax(request):
+def logout_user_api(request):
     username = request.user.username
 
     try:
