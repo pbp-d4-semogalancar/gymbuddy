@@ -75,7 +75,8 @@ def create_thread_ajax(request):
 def edit_thread_user(request, thread_id):
     thread = get_object_or_404(Thread, id=thread_id)
 
-    if thread.user != request.user:
+    # Check permissions (Owner OR Admin)
+    if thread.user != request.user and not request.user.is_superuser:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'success': False, 'error': 'Anda tidak punya izin.'}, status=403)
         return HttpResponse("Anda tidak memiliki izin untuk mengedit thread ini.", status=403)
@@ -109,7 +110,9 @@ def edit_thread_user(request, thread_id):
 def delete_thread_user(request, thread_id):
     thread = get_object_or_404(Thread, id=thread_id)
 
-    if thread.user != request.user:
+    # --- FIX IS HERE ---
+    # We check: Is it the owner? OR Is it a superuser?
+    if thread.user != request.user and not request.user.is_superuser:
         return JsonResponse({"status": "error", "message": "Anda tidak memiliki izin untuk menghapus thread ini."}, status=403)
 
     thread.delete()
@@ -137,7 +140,10 @@ def add_reply_ajax(request, thread_id):
 @login_required
 def edit_reply_ajax(request, reply_id):
     reply = get_object_or_404(Reply, id=reply_id)
-    if request.user != reply.user: return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+    # Allow admin to edit replies too
+    if request.user != reply.user and not request.user.is_superuser: 
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+        
     if request.method == 'POST':
         data = json.loads(request.body)
         form = ReplyForm(data, instance=reply)
@@ -149,11 +155,15 @@ def edit_reply_ajax(request, reply_id):
 @login_required
 def delete_reply_ajax(request, reply_id):
     reply = get_object_or_404(Reply, id=reply_id)
-    if request.user != reply.user: return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+    # Allow admin to delete replies too
+    if request.user != reply.user and not request.user.is_superuser: 
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+        
     if request.method == 'POST':
         reply.delete()
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=405)
+
 class RegisterView(generic.CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy('login')
