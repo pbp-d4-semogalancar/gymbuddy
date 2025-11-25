@@ -1,3 +1,6 @@
+from django.http import JsonResponse
+from .models import Exercise
+from .serializers import exercise_to_dict
 from django.shortcuts import render, get_object_or_404
 from .models import Exercise
 from django.http import HttpResponse
@@ -34,3 +37,27 @@ def exercise_detail(request, pk):
     exercise = get_object_or_404(Exercise, pk=pk)
     return render(request, 'howto/exercise_detail.html', {'exercise': exercise})
 
+
+def exercise_list_api(request):
+    if request.method == "GET":
+        exercises = Exercise.objects.all()
+
+        # Ambil query params
+        muscle = request.GET.get('muscle')
+        equipment = request.GET.get('equipment')
+
+        # Filtering
+        if muscle:
+            exercises = exercises.filter(main_muscle__icontains=muscle)
+        if equipment:
+            exercises = exercises.filter(equipment__icontains=equipment)
+
+        data = [exercise_to_dict(ex) for ex in exercises]
+        return JsonResponse(data, safe=False)
+
+
+@csrf_exempt
+def exercise_detail_api(request, pk):
+    exercise = get_object_or_404(Exercise, pk=pk)
+    data = exercise_to_dict(exercise)
+    return JsonResponse(data, safe=False)

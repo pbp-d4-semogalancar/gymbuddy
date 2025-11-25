@@ -9,7 +9,7 @@ class Exercise(models.Model):
     main_muscle = models.CharField(max_length=100)  # contoh: Chest, Back, Legs
     equipment = models.CharField(max_length=100, blank=True, null=True)  # contoh: Barbell, Dumbbell
     instructions = models.TextField(blank=True, null=True)  # gabungan preparation + execution
-    image = models.ImageField(upload_to='howto/images/', blank=True, null=True)  # opsional, jika nanti ingin menampilkan gambar latihan
+    image = models.ImageField(upload_to='howto/images/', blank=True, null=True)  
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
