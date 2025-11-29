@@ -23,6 +23,7 @@ def create_profile(request):
             profile = form.save(commit=False)
             profile.user = request.user
             profile.save()
+            form.save_m2m()  
             messages.success(request, "Profil berhasil dibuat!")
             return redirect('user_profile:detail_profile',
                             user_id=request.user.id, username=request.user.username)
@@ -80,7 +81,7 @@ def delete_profile(request, user_id, username):
     profile = get_object_or_404(Profile, user__id=user_id, user__username=username)
 
     if request.user != profile.user:
-        return HttpResponseForbidden("Kamu tidak boleh menghapus profil orang lain!")
+        return HttpResponseForbidden("Kamu tidak bisa menghapus profil orang lain!")
 
     profile.delete()
     messages.success(request, "Profil berhasil dihapus.")
@@ -98,14 +99,13 @@ def show_json_by_id(request, user_id):
         "display_name": profile.display_name,
         "bio": profile.bio,
         "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
-        "favorite_workouts": profile.favorite_workouts,
+        "favorite_workouts": list(profile.favorite_workouts.values_list("exercise_name", flat=True)),
     }
     return JsonResponse(data)
 
 @login_required
-@csrf_exempt
 @require_POST
-def create_profile_ajax(request):
+def create_profile_api(request):
     user = request.user
 
     if hasattr(user, 'user_profile'):
@@ -113,43 +113,48 @@ def create_profile_ajax(request):
 
     display_name = request.POST.get("display_name")
     bio = request.POST.get("bio", "")
-    favorite_workouts = request.POST.getlist("favorite_workouts")
     profile_picture = request.FILES.get("profile_picture")
+    workout_ids = request.POST.getlist("favorite_workouts")
 
-    new_profile = Profile(
+    if not display_name:
+        return JsonResponse({"error": "Display name is required."}, status=400)
+
+    new_profile = Profile.objects.create(
         user=user,
         display_name=display_name,
         bio=bio,
-        profile_picture=profile_picture,
-        favorite_workouts=favorite_workouts
+        profile_picture=profile_picture
     )
-    new_profile.save()
 
-    return HttpResponse(b"CREATED", status=201)
+    new_profile.favorite_workouts.set(workout_ids)
+
+    return JsonResponse({"status": "CREATED"}, status=201)
     
 @login_required
 @require_POST
-@csrf_exempt
-def edit_profile_ajax(request):
+def edit_profile_api(request):
     if not hasattr(request.user, 'user_profile'):
-        return JsonResponse({"success": False, "message": "Profil belum dibuat."})
+        return JsonResponse({"success": False, "message": "Profil belum dibuat."}, status=400)
 
     profile = request.user.user_profile
+
     form = ProfileForm(request.POST, request.FILES, instance=profile)
 
     if form.is_valid():
-        form.save()
-        data = {
+        updated = form.save()
+
+        workout_ids = request.POST.getlist("favorite_workouts")
+        updated.favorite_workouts.set(workout_ids)
+
+        return JsonResponse({
             "success": True,
             "message": "Profil berhasil diperbarui!",
             "profile": {
-                "display_name": profile.display_name,
-                "bio": profile.bio,
-                "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
-                "favorite_workouts": profile.favorite_workouts,
+                "display_name": updated.display_name,
+                "bio": updated.bio,
+                "profile_picture": updated.profile_picture.url if updated.profile_picture else None,
+                "favorite_workouts": list(updated.favorite_workouts.values_list("id", flat=True)),
             }
-        }
-        return JsonResponse(data)
-    else:
-        errors = form.errors.as_json()
-        return JsonResponse({"success": False, "errors": errors})
+        }, status=200)
+
+    return JsonResponse({"success": False, "errors": form.errors}, status=400)

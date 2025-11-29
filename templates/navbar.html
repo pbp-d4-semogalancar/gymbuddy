@@ -27,11 +27,11 @@
                                 Halo, {{ user.username }}
                             </a>
                         {% else %}
-                            <button type="button" 
-                                    onclick="createProfileModal()"
+                            <a type="button" 
+                                    href="{% url 'user_profile:create_profile' %}"
                                     class="bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-md hover:bg-gray-700 transition-colors">
                                 Halo, {{ user.username }}
-                            </button>
+                            </a>
                         {% endif %}
                         <a href="{% url 'authentication:logout_user' %}" 
                            class="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">

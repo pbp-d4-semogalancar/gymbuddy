@@ -22,8 +22,8 @@
         <!-- Modal body -->
         <div class="px-6 py-4 space-y-6">
             <form id="profileForm" enctype="multipart/form-data"
-                data-create-url="{% url 'user_profile:create_profile_ajax' %}"
-                data-edit-url="{% url 'user_profile:edit_profile_ajax' %}">
+                data-create-url="{% url 'user_profile:create_profile_api' %}"
+                data-edit-url="{% url 'user_profile:edit_profile_api' %}">
                 <!-- Preview Foto Profil -->
                 <div class="flex flex-col items-center text-center p-10 mb-8 border-b">
                     <img id="profile-preview" src="{% static 'images/default-avatar.png' %}"
@@ -278,8 +278,8 @@
         e.preventDefault();
         const formData = new FormData(this);
         let url = isEditMode
-            ? "{% url 'user_profile:edit_profile_ajax' %}"
-            : "{% url 'user_profile:create_profile_ajax' %}";
+            ? "{% url 'user_profile:edit_profile_api' %}"
+            : "{% url 'user_profile:create_profile_api' %}";
         fetch(url, {
             method: "POST",
             body: formData

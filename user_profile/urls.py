@@ -9,6 +9,6 @@ urlpatterns = [
     path('<int:user_id>/<str:username>/', views.detail_profile, name='detail_profile'),
     path('<int:user_id>/<str:username>/delete/', views.delete_profile, name='delete_profile'),
     path('json/<int:user_id>/', views.show_json_by_id, name='show_json_by_id'),
-    path('create/ajax/', views.create_profile_ajax, name='create_profile_ajax'),
-    path('edit/ajax/', views.edit_profile_ajax, name='edit_profile_ajax'),
+    path('create/ajax/', views.create_profile_api, name='create_profile_api'),
+    path('edit/ajax/', views.edit_profile_api, name='edit_profile_api'),
 ]

@@ -35,21 +35,6 @@
                 </div>
 
                 <!-- Tombol Edit & Delete -->
-                {% if request.user == user_profile.user %}
-                <div class="flex justify-end gap-3">
-                    <button type="button" onclick="loadProfileData({{ request.user.id }})" 
-                        class="flex-1 bg-gray-800 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
-                        Edit Profil
-                    </button>
-
-                    <button type="button" 
-                            onclick="showDeleteModal('{% url 'user_profile:delete_profile' user.id user.username %}')"
-                            class="flex-1 bg-gray-800 hover:bg-red-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
-                        Hapus Profil
-                    </button>
-
-                </div>
-                {% endif %}
             </div>
         </div>
 
@@ -76,15 +61,11 @@
             </h3>
             {% if user_profile.favorite_workouts %}
             <div class="flex flex-wrap gap-2 font-medium w-full max-w-3xl mx-auto">
-                {% for choice in user_profile.favorite_workouts %}
-                {% for value, label in user_profile.CATEGORY_CHOICES %}
-                {% if value == choice %}
+            {% for workout in user_profile.favorite_workouts.all %}
                 <span class="bg-gray-800 text-white px-4 py-3 rounded-lg text-sm font-medium">
-                    {{ label }}
+                    {{ workout.name }}
                 </span>
-                {% endif %}
-                {% endfor %}
-                {% endfor %}
+            {% endfor %}
             </div>
             {% else %}
             <p class="text-gray-500 italic">Belum memilih latihan favorit.</p>
