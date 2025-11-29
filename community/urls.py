@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
-
+from .views import ThreadListCreateAPIView
 app_name = 'community'
 
 urlpatterns = [
+    path('api/threads/', ThreadListCreateAPIView.as_view(), name='api_thread_list_create'),
     path('', views.community_page_view, name='community_page'),
     path('create_ajax/', views.create_thread_ajax, name='create_thread_ajax'),
     path('thread/<int:thread_id>/', views.thread_detail_view, name='thread_detail'),

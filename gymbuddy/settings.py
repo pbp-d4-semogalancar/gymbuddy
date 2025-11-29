@@ -37,7 +37,9 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://rexy-adrian-gymbuddy.pbp.cs.ui.ac.id",
+    "https://rexy-adrian-gymbuddy.pbp.cs.ui.ac.id",     "http://10.0.2.2:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
 ]
 
 # Application definition
@@ -56,9 +58,11 @@ INSTALLED_APPS = [
     'user_profile',
     'planner',
     'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',   # BENAR: HARUS PALING ATAS
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -67,7 +71,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'gymbuddy.urls'
