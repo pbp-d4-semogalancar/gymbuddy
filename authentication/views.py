@@ -59,17 +59,15 @@ def register_user_api(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            username = data.get('username', '').strip() # Ambil dan bersihkan
+            username = data.get('username', '').strip()
             password1 = data.get('password1', '').strip()
             password2 = data.get('password2', '').strip()
 
-            # --- VALIDASI TAMBAHAN (INI PENTING) ---
             if not username or not password1:
                 return JsonResponse({
                     "status": False,
                     "message": "Username and password cannot be empty."
                 }, status=400)
-            # --- AKHIR VALIDASI TAMBAHAN ---
 
             if password1 != password2:
                 return JsonResponse({
@@ -90,12 +88,11 @@ def register_user_api(request):
                 "username": user.username,
                 "status": True,
                 "message": "User created successfully!"
-            }, status=201) # Ganti ke 201 (Created)
+            }, status=201)
         
         except json.JSONDecodeError:
              return JsonResponse({"status": False, "message": "Invalid JSON data."}, status=400)
         except Exception as e:
-            # Menangkap semua error lain (termasuk dari create_user)
             return JsonResponse({"status": False, "message": str(e)}, status=500)
     
     else:
@@ -103,32 +100,43 @@ def register_user_api(request):
 
 @csrf_exempt
 def login_user_api(request):
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            login(request, user)
-            context = {
-                "username": user.username,
-                "status": True,
-                "user_id": user.id,
-                "message": "Login successfully!"
-            }
-            return JsonResponse(context, status=200)
-        else:
-            context = {
-                "status": False,
-                "message": "Login gagal, akun dinonaktifkan."
-            }
-            return JsonResponse(context, status=401)
+    if request.method == 'POST': # Pastikan method POST
+        try:
+            data = json.loads(request.body)
+            username = request.get('username')
+            password = request.get('password')
+            
+            user = authenticate(username=username, password=password)
 
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    context = {
+                        "username": user.username,
+                        "status": True,
+                        "user_id": user.id,
+                        "message": "Login successfully!"
+                    }
+                    return JsonResponse(context, status=200)
+                else:
+                    context = {
+                        "status": False,
+                        "message": "Login gagal, akun dinonaktifkan."
+                    }
+                    return JsonResponse(context, status=401)
+
+            else:
+                context = {
+                    "status": False,
+                    "message": "Login gagal, periksa kembali email atau kata sandi."
+                }
+                return JsonResponse(context, status=401)
+            
+        except json.JSONDecodeError:
+             return JsonResponse({"status": False, "message": "Invalid JSON"}, status=400)
+        
     else:
-        context = {
-            "status": False,
-            "message": "Login gagal, periksa kembali email atau kata sandi."
-        }
-        return JsonResponse(context, status=401)
+        return JsonResponse({"status": False, "message": "Method not allowed"}, status=405)
 
 @csrf_exempt
 def logout_user_api(request):
