@@ -1,11 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden, JsonResponse
-from django.urls import reverse
+from django.http import Http404, JsonResponse
 from .forms import ProfileForm
 from .models import Profile
 
@@ -68,24 +66,35 @@ def detail_profile(request, user_id, username):
         raise Http404("Profil belum dibuat.")
 
     profile = user.user_profile
+    form = ProfileForm()
+    workout_ids = list(profile.favorite_workouts.values_list('id', flat=True))
 
     context = {
         'user_profile': profile,
         'title': f'Profil {profile.display_name}',
+        'form': form,
+        'workout_ids': workout_ids
     }
     return render(request, 'show_user_profile.html', context)
 
 @login_required
-@require_POST
+@require_http_methods(["DELETE", "POST"])
 def delete_profile(request, user_id, username):
     profile = get_object_or_404(Profile, user__id=user_id, user__username=username)
 
     if request.user != profile.user:
-        return HttpResponseForbidden("Kamu tidak bisa menghapus profil orang lain!")
+        return JsonResponse({
+            "success": False, 
+            "message": "Kamu tidak bisa menghapus profil orang lain!"
+        }, status=403)
 
-    profile.delete()
-    messages.success(request, "Profil berhasil dihapus.")
-    return redirect('landing_page:landing_page')
+    user = profile.user
+    user.delete()
+
+    return JsonResponse({
+        "success": True, 
+        "message": "Profil berhasil dihapus."
+    }, status=200)
 
 def show_json(request):
     try:

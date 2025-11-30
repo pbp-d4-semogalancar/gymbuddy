@@ -39,19 +39,25 @@
                     <!-- Tombol Edit & Delete -->
                     {% if request.user == user_profile.user %}
                     <div class="flex justify-end gap-3">
-                        <a href="{% url 'user_profile:edit_profile' %}"
-                            class="flex-1 bg-gray-800 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
-                            Edit Profil
+
+                        <a href="javascript:void(0)" 
+                        onclick="openEditProfileWrapper()"
+                        class="flex-1 bg-gray-800 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit
                         </a>
 
-                        <form action="{% url 'user_profile:delete_profile' request.user.id request.user.username %}" method="post">
-                            {% csrf_token %}
-                            <button
-                                type="submit"
-                                class="flex-1 bg-gray-800 hover:bg-red-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
-                                Hapus profil
-                            </button>
-                        </form>
+                        <a href="javascript:void(0)" 
+                                onclick="openDeleteModal()"
+                                class="flex-1 bg-gray-800 hover:bg-red-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Hapus
+                        </a>
                     </div>
                     {% endif %}
                 </div>
@@ -81,6 +87,8 @@
     </div>
 </div>
 
+{{ workout_ids|json_script:"workout-ids-data" }}
+
 <script>
 const USER_ID = "{{ user_profile.user.id }}";
 const PROFILE_ENDPOINT = "{% url 'user_profile:show_json_by_id' '0' %}".replace('0', USER_ID);
@@ -95,6 +103,22 @@ const bio = document.getElementById("bio");
 const profilePicture = document.getElementById("profile-picture");
 const favoriteWorkouts = document.getElementById("favorite-workouts-container");
 
+function openEditProfileWrapper() {
+
+    const savedWorkoutIds = JSON.parse(document.getElementById('workout-ids-data').textContent);
+
+    const myProfileData = {
+        display_name: '{{ user_profile.display_name|escapejs }}',
+        bio: '{{ user_profile.bio|escapejs|default:"" }}',
+        profile_picture: '{% if user_profile.profile_picture %}{{ user_profile.profile_picture.url }}{% endif %}',
+        
+        favorite_workouts: savedWorkoutIds
+    };
+
+    // Panggil fungsi modal edit
+    openModal('edit', myProfileData);
+}
+
 function showState(state) {
     loadingState.classList.toggle('hidden', state !== 'loading');
     errorState.classList.toggle('hidden', state !== 'error');
@@ -103,7 +127,6 @@ function showState(state) {
 
 function renderProfile(p) {
     
-    favoriteWorkouts.innerHTML = "";
     displayName.textContent = p.display_name;
     username.textContent = "@" + p.username;
     bio.textContent = p.bio || "Belum menulis bio.";
@@ -148,4 +171,6 @@ async function loadProfile() {
 loadProfile();
 </script>
 
+{% include 'profile_modal.html' %}
+{% include 'delete_modal.html' %}
 {% endblock %}

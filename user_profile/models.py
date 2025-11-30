@@ -4,6 +4,7 @@ from multiselectfield import MultiSelectField
 import os
 from django.utils.crypto import get_random_string
 from howto.models import Exercise
+from PIL import Image
 
 # Create your models here.
 
@@ -27,3 +28,36 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.display_name or self.user.username
+    
+    # auto crop image
+    def save(self, *args, **kwargs):
+        # simpan gambar aslinya ke server
+        super().save(*args, **kwargs)
+
+        if self.profile_picture:
+            try:
+                img_path = self.profile_picture.path
+                img = Image.open(img_path)
+
+                # cek apakah gambar 1:1
+                if img.height != img.width:
+                    # ambil dimensi terpendek
+                    min_dim = min(img.width, img.height)
+
+                    # center crop
+                    left = (img.width - min_dim) / 2
+                    top = (img.height - min_dim) / 2
+                    right = (img.width + min_dim) / 2
+                    bottom = (img.height + min_dim) / 2
+
+                    # crop
+                    img = img.crop((left, top, right, bottom))
+                    
+                    # set max 500x500 pixel untuk profil
+                    if min_dim > 500:
+                        img.thumbnail((500, 500))
+
+                    img.save(img_path)
+            
+            except Exception as e:
+                print(f"Gagal crop gambar: {e}")
