@@ -5,6 +5,7 @@
 
 {% block content %}
 {% include 'navbar.html' %}
+
 <div class="min-h-screen bg-gray-100 flex items-center justify-center p-6">
     <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-3xl">
         <h2 class="text-4xl font-bold mb-1 text-gray-800 text-center">
@@ -14,20 +15,20 @@
         <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
 
-            <!-- Preview Foto Profil -->
             <div class="flex flex-col items-center text-center p-10 mb-8 border-b border-gray-200">
                 <img id="profile-preview"
-                    src="{% if user_profile.profile_picture %}
+                     src="{% if user_profile.profile_picture %}
                             {{ user_profile.profile_picture.url }}
-                        {% else %}
+                         {% else %}
                             {% static 'images/default-avatar.png' %}
-                        {% endif %}" 
-                    class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5 cursor-pointer"
-                    alt="Preview Profile">
+                         {% endif %}"
+                     class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5 cursor-pointer hover:opacity-80 transition"
+                     alt="Preview Profile">
+                
                 <input type="file" name="profile_picture" id="id_profile_picture" class="hidden">
+                <p class="text-sm text-gray-500 mt-2">Klik foto untuk mengganti</p>
             </div>
 
-            <!-- Display Name -->
             <div>
                 <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">
                     Display Name
@@ -38,7 +39,6 @@
                 {% endif %}
             </div>
 
-            <!-- Bio -->
             <div>
                 <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">
                     Bio
@@ -49,30 +49,42 @@
                 {% endif %}
             </div>
 
-            <!-- Favorite Workouts -->
             <div>
                 <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">
                     Workout Favorit
                 </h3>
-                <div class="flex flex-wrap gap-3">
-                    {% for value, label in form.favorite_workouts.field.choices %}
-                    <label class="cursor-pointer p-3 border rounded-lg flex items-center justify-center text-center transition duration-200
-                        {% if value in form.favorite_workouts.value %}
-                            bg-gray-800 border-gray-800 text-white
-                        {% else %}
-                            bg-gray-100 border-gray-800 text-gray-800 hover:bg-gray-200
-                        {% endif %}">
-                        <input type="checkbox" name="{{ form.favorite_workouts.name }}" value="{{ value }}" class="hidden"
-                            {% if value in form.favorite_workouts.value %}checked{% endif %}>
-                        <span class="font-medium">{{ label }}</span>
-                    </label>
-                    {% endfor %}
+                
+                {% with selected_list=form.favorite_workouts.value|default_if_none:"" %}
+                
+                <!-- Container scroll -->
+
+                <div class="max-h-60 overflow-y-auto border rounded-lg p-3 bg-gray-50">
+                    <div class="flex flex-wrap gap-3">
+                        {% for value, label in form.favorite_workouts.field.choices %}
+                            <label class="cursor-pointer p-3 border rounded-lg flex items-center justify-center text-center transition duration-200 select-none
+                                {% if value in selected_list %}
+                                    bg-gray-800 border-gray-800 text-white
+                                {% else %}
+                                    bg-white border-gray-300 text-gray-800 hover:bg-gray-200
+                                {% endif %}">
+                                
+                                <input type="checkbox" 
+                                    name="{{ form.favorite_workouts.name }}" 
+                                    value="{{ value }}" 
+                                    class="hidden workout-checkbox"
+                                    {% if value in selected_list %}checked{% endif %}>
+                                
+                                <span class="font-medium">{{ label }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
                 </div>
+
+                {% endwith %}
             </div>
 
-            <!-- Submit -->
             <button type="submit"
-                class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 rounded-lg transition duration-200">
+                class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 rounded-lg transition duration-200 shadow-md">
                 Update Profil
             </button>
         </form>
@@ -80,35 +92,46 @@
 </div>
 
 <script>
-    const input = document.getElementById("id_profile_picture");
-    const preview = document.getElementById("profile-preview");
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const checkboxes = document.querySelectorAll('.workout-checkbox');
 
-    preview.addEventListener("click", () => input.click());
-
-    input.addEventListener("change", function() {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
+    function updateStyle(checkbox) {
+        const label = checkbox.parentElement;
+        
+        if (checkbox.checked) {
+            label.classList.remove('bg-white', 'text-gray-800', 'hover:bg-gray-200', 'border-gray-300');
+            label.classList.add('bg-gray-800', 'text-white', 'border-gray-800');
+        } else {
+            label.classList.remove('bg-gray-800', 'text-white', 'border-gray-800');
+            label.classList.add('bg-white', 'text-gray-800', 'hover:bg-gray-200', 'border-gray-300');
         }
-    });
+    }
 
-    document.querySelectorAll('label').forEach(label => {
-        const checkbox = label.querySelector('input[type="checkbox"]');
-        label.addEventListener('click', () => {
-            setTimeout(() => {
-                if(checkbox.checked){
-                    label.classList.add('bg-gray-800', 'text-white');
-                    label.classList.remove('bg-gray-100', 'text-gray-800', 'hover:bg-gray-200');
-                } else {
-                    label.classList.remove('bg-gray-800', 'text-white');
-                    label.classList.add('bg-gray-100', 'text-gray-800', 'hover:bg-gray-200');
-                }
-            }, 0);
+    checkboxes.forEach(checkbox => {
+        updateStyle(checkbox);
+        
+        checkbox.addEventListener('change', function() {
+            updateStyle(this);
         });
     });
+
+
+    const inputFoto = document.getElementById("id_profile_picture");
+    const imgPreview = document.getElementById("profile-preview");
+
+    if (inputFoto && imgPreview) {
+        imgPreview.addEventListener("click", () => inputFoto.click());
+
+        inputFoto.addEventListener("change", function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => imgPreview.src = e.target.result;
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

@@ -87,6 +87,26 @@ def delete_profile(request, user_id, username):
     messages.success(request, "Profil berhasil dihapus.")
     return redirect('landing_page:landing_page')
 
+def show_json(request):
+    try:
+        profile_list = Profile.objects.all()
+    except Profile.DoesNotExist:
+        raise Http404("Profile tidak ditemukan")
+
+    data = [ 
+        {
+            "id": profile.user.id,
+            "username": profile.user.username,
+            "display_name": profile.display_name,
+            "bio": profile.bio,
+            "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
+            "favorite_workouts": list(profile.favorite_workouts.values_list("exercise_name", flat=True)),
+        }
+        for profile in profile_list
+    ]
+    return JsonResponse(data, safe=False)
+
+
 def show_json_by_id(request, user_id):
     try:
         profile = Profile.objects.get(user__id=user_id)
