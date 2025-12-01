@@ -16,18 +16,19 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import ThreadSerializer
 from django.utils.decorators import method_decorator
 
-def serialize_reply(reply):
+def serialize_reply(reply, current_user):
     return {
         "id": reply.id,
         "content": reply.content,
         "timestamp": reply.date_created.strftime("%Y-%m-%d %H:%M:%S"),
+        "is_mine": reply.user == current_user,
         "user": {
             "username": reply.user.username,
             "display_name": getattr(reply.user, 'user_profile', None).display_name if hasattr(reply.user, 'user_profile') else reply.user.username,
             "profile_picture": getattr(reply.user.user_profile.profile_picture, 'url', None) if hasattr(reply.user, 'user_profile') and reply.user.user_profile.profile_picture else "https://thumbs.dreamstime.com/b/default-avatar-profile-trendy-style-social-media-user-icon-187599373.jpg",
             "time_ago": reply.date_created.strftime("%d %b %Y %H:%M")
         },
-        "children": [serialize_reply(child) for child in reply.children.all().order_by('-date_created')]
+        "children": [serialize_reply(child, current_user) for child in reply.children.all().order_by('-date_created')]
     }
 
 def api_thread_detail(request, id):
@@ -46,7 +47,7 @@ def api_thread_detail(request, id):
         }
     }
 
-    replies_data = [serialize_reply(r) for r in top_level_replies]
+    replies_data = [serialize_reply(r, request.user) for r in top_level_replies]
 
     return JsonResponse({
         "status": "success",
