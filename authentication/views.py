@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 import datetime
 from django.views.decorators.csrf import csrf_exempt
@@ -100,43 +100,33 @@ def register_user_api(request):
 
 @csrf_exempt
 def login_user_api(request):
-    if request.method == 'POST': # Pastikan method POST
-        try:
-            data = json.loads(request.body)
-            username = request.get('username')
-            password = request.get('password')
-            
-            user = authenticate(username=username, password=password)
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            login(request, user)
+            context = {
+                "username": user.username,
+                "status": True,
+                "user_id": user.id,
+                "message": "Login successfully!"
+            }
+            return JsonResponse(context, status=200)
+        else:
+            context = {
+                "status": False,
+                "message": "Login gagal, akun dinonaktifkan."
+            }
+            return JsonResponse(context, status=401)
 
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    context = {
-                        "username": user.username,
-                        "status": True,
-                        "user_id": user.id,
-                        "message": "Login successfully!"
-                    }
-                    return JsonResponse(context, status=200)
-                else:
-                    context = {
-                        "status": False,
-                        "message": "Login gagal, akun dinonaktifkan."
-                    }
-                    return JsonResponse(context, status=401)
-
-            else:
-                context = {
-                    "status": False,
-                    "message": "Login gagal, periksa kembali email atau kata sandi."
-                }
-                return JsonResponse(context, status=401)
-            
-        except json.JSONDecodeError:
-             return JsonResponse({"status": False, "message": "Invalid JSON"}, status=400)
-        
     else:
-        return JsonResponse({"status": False, "message": "Method not allowed"}, status=405)
+        context = {
+            "status": False,
+            "message": "Login gagal, periksa kembali email atau kata sandi."
+        }
+        return JsonResponse(context, status=401)
+
 
 @csrf_exempt
 def logout_user_api(request):
