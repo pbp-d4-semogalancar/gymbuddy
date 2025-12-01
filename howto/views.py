@@ -39,21 +39,20 @@ def exercise_detail(request, pk):
 
 
 def exercise_list_api(request):
-    if request.method == "GET":
-        exercises = Exercise.objects.all()
+    # awalnya: ambil semua
+    exercises = Exercise.objects.all()
 
-        # Ambil query params
-        muscle = request.GET.get('muscle')
-        equipment = request.GET.get('equipment')
+    muscle = request.GET.get("muscle")
+    equipment = request.GET.get("equipment")
 
-        # Filtering
-        if muscle:
-            exercises = exercises.filter(main_muscle__icontains=muscle)
-        if equipment:
-            exercises = exercises.filter(equipment__icontains=equipment)
+    if muscle:
+        exercises = exercises.filter(main_muscle=muscle)
+    if equipment:
+        exercises = exercises.filter(equipment=equipment)
 
-        data = [exercise_to_dict(ex) for ex in exercises]
-        return JsonResponse(data, safe=False)
+    data = [exercise_to_dict(ex) for ex in exercises]
+    return JsonResponse(data, safe=False)
+
 
 
 @csrf_exempt
@@ -61,3 +60,33 @@ def exercise_detail_api(request, pk):
     exercise = get_object_or_404(Exercise, pk=pk)
     data = exercise_to_dict(exercise)
     return JsonResponse(data, safe=False)
+
+# API untuk daftar otot dan peralatan unik
+def muscle_list_api(request):
+    muscles = (
+        Exercise.objects.values_list('main_muscle', flat=True)
+        .distinct()
+        .order_by('main_muscle')
+    )
+    return JsonResponse(list(muscles), safe=False)
+
+def equipment_list_api(request):
+    equipments = (
+        Exercise.objects.values_list('equipment', flat=True)
+        .distinct()
+        .order_by('equipment')
+    )
+    return JsonResponse(list(equipments), safe=False)
+
+
+def exercise_options_api(request):
+    muscles = Exercise.objects.order_by("main_muscle") \
+                .values_list("main_muscle", flat=True).distinct()
+
+    equipments = Exercise.objects.order_by("equipment") \
+                .values_list("equipment", flat=True).distinct()
+
+    return JsonResponse({
+        "muscles": list(muscles),
+        "equipments": list(equipments),
+    }, safe=False)
