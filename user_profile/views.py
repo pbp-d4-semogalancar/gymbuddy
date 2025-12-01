@@ -1,9 +1,12 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.http import Http404, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
+
+from gymbuddy import settings
 from .forms import ProfileForm
 from .models import Profile
 
@@ -108,7 +111,7 @@ def show_json(request):
             "username": profile.user.username,
             "display_name": profile.display_name,
             "bio": profile.bio,
-            "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
+            "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
             "favorite_workouts": list(profile.favorite_workouts.values_list("exercise_name", flat=True)),
         }
         for profile in profile_list
@@ -127,7 +130,7 @@ def show_json_by_id(request, user_id):
         "username": profile.user.username,
         "display_name": profile.display_name,
         "bio": profile.bio,
-        "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
+        "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
         "favorite_workouts": list(profile.favorite_workouts.values_list("exercise_name", flat=True)),
     }
     return JsonResponse(data)
