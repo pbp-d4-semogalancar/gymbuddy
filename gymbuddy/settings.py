@@ -37,9 +37,21 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://rexy-adrian-gymbuddy.pbp.cs.ui.ac.id",     "http://10.0.2.2:8000",
+    "https://rexy-adrian-gymbuddy.pbp.cs.ui.ac.id",  
+        "http://localhost:55000",   
+    "http://10.0.2.2:8000",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "http://localhost:59848",
+    "http://127.0.0.1:59848",
+    'http://localhost:5000',
+    'http://127.0.0.1:5000',
+    "http://localhost:51237",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:59848",
+    "http://127.0.0.1:59848",
 ]
 
 # Application definition
@@ -67,7 +79,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -78,10 +90,10 @@ ROOT_URLCONF = 'gymbuddy.urls'
 # cookie and credential config
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = False 
+SESSION_COOKIE_SECURE = False 
+CSRF_COOKIE_SAMESITE = 'Lax'  # <--- UBAH DARI None KE 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax' # <--- UBAH DARI None KE 'Lax'
 
 TEMPLATES = [
     {

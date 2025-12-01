@@ -14,6 +14,7 @@ from django.views.decorators.http import require_POST
 from rest_framework import generics 
 from rest_framework.permissions import IsAuthenticated 
 from .serializers import ThreadSerializer
+from django.utils.decorators import method_decorator
 
 def serialize_reply(reply):
     return {
@@ -183,6 +184,7 @@ def create_thread_ajax(request):
 
 # [U] - UPDATE: Mengedit Thread Milik Sendiri
 @login_required
+@csrf_exempt
 def edit_thread_user(request, thread_id):
     thread = get_object_or_404(Thread, id=thread_id)
 
@@ -275,18 +277,18 @@ def delete_reply_ajax(request, reply_id):
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=405)
 
+@method_decorator(csrf_exempt, name='dispatch') 
 class ThreadListCreateAPIView(generics.ListCreateAPIView):
     # Queryset dasar (mengambil semua thread)
     queryset = Thread.objects.all().order_by('-date_created')
     serializer_class = ThreadSerializer
     
-    # Tugas: Tambahkan permission_classes = [IsAuthenticated]
+    # Permission ini tetap diperlukan untuk memeriksa apakah user sudah login
     permission_classes = [IsAuthenticated] 
 
     # Tugas: Override perform_create
     def perform_create(self, serializer):
         # Mengaitkan Thread yang baru dibuat dengan user yang sedang login
-        # Menggunakan field 'user' sesuai model.py
         serializer.save(user=self.request.user)
 
 class RegisterView(generic.CreateView):
