@@ -13,9 +13,115 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from rest_framework import generics 
 from rest_framework.permissions import IsAuthenticated 
-from .serializers import ThreadSerializer # <-- TETAPKAN INI UNTUK MENGGUNAKAN SERIALIZER
-from .models import Thread, Reply
 from .serializers import ThreadSerializer
+
+def serialize_reply(reply):
+    return {
+        "id": reply.id,
+        "content": reply.content,
+        "timestamp": reply.date_created.strftime("%Y-%m-%d %H:%M:%S"),
+        "user": {
+            "username": reply.user.username,
+            "display_name": getattr(reply.user, 'user_profile', None).display_name if hasattr(reply.user, 'user_profile') else reply.user.username,
+            "profile_picture": getattr(reply.user.user_profile.profile_picture, 'url', None) if hasattr(reply.user, 'user_profile') and reply.user.user_profile.profile_picture else "https://thumbs.dreamstime.com/b/default-avatar-profile-trendy-style-social-media-user-icon-187599373.jpg",
+            "time_ago": reply.date_created.strftime("%d %b %Y %H:%M")
+        },
+        "children": [serialize_reply(child) for child in reply.children.all().order_by('-date_created')]
+    }
+
+def api_thread_detail(request, id):
+    thread = get_object_or_404(Thread, pk=id)
+    top_level_replies = thread.replies.filter(parent__isnull=True).order_by('-date_created')
+
+    thread_data = {
+        "id": thread.id,
+        "title": thread.title,
+        "content": thread.content,
+        "user": {
+            "username": thread.user.username,
+            "display_name": getattr(thread.user, 'user_profile', None).display_name if hasattr(thread.user, 'user_profile') else thread.user.username,
+            "profile_picture": getattr(thread.user.user_profile.profile_picture, 'url', None) if hasattr(thread.user, 'user_profile') and thread.user.user_profile.profile_picture else "https://thumbs.dreamstime.com/b/default-avatar-profile-trendy-style-social-media-user-icon-187599373.jpg",
+            "time_ago": thread.date_created.strftime("%d %B %Y %H:%M")
+        }
+    }
+
+    replies_data = [serialize_reply(r) for r in top_level_replies]
+
+    return JsonResponse({
+        "status": "success",
+        "thread": thread_data,
+        "replies": replies_data
+    })
+
+@csrf_exempt
+def api_add_reply(request, thread_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            content = data.get('content')
+            parent_id = data.get('parent_id')
+
+            if not content:
+                return JsonResponse({'status': 'error', 'message': 'Konten kosong'}, status=400)
+
+            thread = get_object_or_404(Thread, pk=thread_id)
+            user = request.user 
+
+            parent_reply = None
+            if parent_id:
+                parent_reply = Reply.objects.filter(pk=parent_id).first()
+
+            Reply.objects.create(
+                thread=thread,
+                user=user,
+                content=content,
+                parent=parent_reply
+            )
+
+            return JsonResponse({'status': 'success', 'message': 'Balasan berhasil dikirim'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+
+# --- API DELETE REPLY ---
+@csrf_exempt
+def api_delete_reply(request, reply_id):
+    if request.method == 'POST':
+        try:
+            reply = get_object_or_404(Reply, pk=reply_id)
+            
+            if request.user != reply.user:
+                return JsonResponse({'status': 'error', 'message': 'Tidak diizinkan menghapus balasan orang lain'}, status=403)
+            
+            reply.delete()
+            return JsonResponse({'status': 'success', 'message': 'Balasan berhasil dihapus'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+
+# --- API EDIT REPLY ---
+@csrf_exempt
+def api_edit_reply(request, reply_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_content = data.get('content')
+            
+            reply = get_object_or_404(Reply, pk=reply_id)
+
+            if request.user != reply.user:
+                return JsonResponse({'status': 'error', 'message': 'Tidak diizinkan mengedit balasan orang lain'}, status=403)
+
+            reply.content = new_content
+            reply.save()
+            
+            return JsonResponse({'status': 'success', 'message': 'Balasan berhasil diedit'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
 
 def community_page_view(request):
     filter_type = request.GET.get('filter')
