@@ -36,17 +36,18 @@ ALLOWED_HOSTS = [
     "10.0.2.2",
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
 CSRF_TRUSTED_ORIGINS = [
-    "https://rexy-adrian-gymbuddy.pbp.cs.ui.ac.id",  
-        "http://localhost:55000",   
-    "http://10.0.2.2:8000",
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
-    "http://localhost:59848",
-    "http://127.0.0.1:59848",
-    'http://localhost:5000',
-    'http://127.0.0.1:5000',
-    "http://localhost:51237",
+    "https://rexy-adrian-gymbuddy.pbp.cs.ui.ac.id",   
+    "http://localhost",
+    "http://10.0.2.2",
+    "http://127.0.0.1",
+    
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -74,7 +75,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',   # BENAR: HARUS PALING ATAS
+    'corsheaders.middleware.CorsMiddleware',   
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -90,10 +91,10 @@ ROOT_URLCONF = 'gymbuddy.urls'
 # cookie and credential config
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_SECURE = False 
-SESSION_COOKIE_SECURE = False 
-CSRF_COOKIE_SAMESITE = 'Lax'  # <--- UBAH DARI None KE 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax' # <--- UBAH DARI None KE 'Lax'
+CSRF_COOKIE_SECURE = True 
+SESSION_COOKIE_SECURE = True 
+CSRF_COOKIE_SAMESITE = 'None'  # <--- UBAH DARI None KE 'Lax'
+SESSION_COOKIE_SAMESITE = 'None' # <--- UBAH DARI None KE 'Lax'
 
 TEMPLATES = [
     {

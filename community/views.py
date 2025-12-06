@@ -171,18 +171,22 @@ def delete_reply_ajax(request, reply_id):
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=405)
 
-@method_decorator(csrf_exempt, name='dispatch') 
+@method_decorator(csrf_exempt, name='dispatch')
 class ThreadListCreateAPIView(generics.ListCreateAPIView):
-    # Queryset dasar (mengambil semua thread)
     queryset = Thread.objects.all().order_by('-date_created')
     serializer_class = ThreadSerializer
-    
-    # Permission ini tetap diperlukan untuk memeriksa apakah user sudah login
-    permission_classes = [IsAuthenticated] 
+    permission_classes = []  
 
-    # Tugas: Override perform_create
+    # Cek login manual
+    def create(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                "detail": "You must be logged in to create a thread."
+            }, status=401)
+
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
-        # Mengaitkan Thread yang baru dibuat dengan user yang sedang login
         serializer.save(user=self.request.user)
 
 class RegisterView(generic.CreateView):
