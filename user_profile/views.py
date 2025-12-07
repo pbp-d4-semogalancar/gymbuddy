@@ -4,9 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.http import FileResponse, Http404, HttpResponse, JsonResponse
-
-from gymbuddy import settings
+from django.http import Http404, JsonResponse
 from .forms import ProfileForm
 from .models import Profile
 
@@ -19,7 +17,7 @@ def create_profile(request):
     profile = None
 
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES)
+        form = ProfileForm(request.POST)
         if form.is_valid():
             profile = form.save(commit=False)
             profile.user = request.user
@@ -46,7 +44,7 @@ def edit_profile(request):
     profile = request.user.user_profile
     
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
             messages.success(request, "Profil berhasil diperbarui!")
@@ -111,7 +109,7 @@ def show_json(request):
             "username": profile.user.username,
             "display_name": profile.display_name,
             "bio": profile.bio,
-            "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
+            "profile_picture": profile.profile_picture if profile.profile_picture else None,
             "favorite_workouts": list(profile.favorite_workouts.values_list("exercise_name", flat=True)),
         }
         for profile in profile_list
@@ -130,7 +128,7 @@ def show_json_by_id(request, user_id):
         "username": profile.user.username,
         "display_name": profile.display_name,
         "bio": profile.bio,
-        "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
+        "profile_picture": profile.profile_picture if profile.profile_picture else None,
         "favorite_workouts": list(profile.favorite_workouts.values_list("exercise_name", flat=True)),
     }
     return JsonResponse(data)
@@ -145,7 +143,7 @@ def create_profile_api(request):
 
     display_name = request.POST.get("display_name")
     bio = request.POST.get("bio", "")
-    profile_picture = request.FILES.get("profile_picture")
+    profile_picture = request.POST.get("profile_picture")
     workout_ids = request.POST.getlist("favorite_workouts")
 
     if not display_name:
@@ -170,7 +168,7 @@ def edit_profile_api(request):
 
     profile = request.user.user_profile
 
-    form = ProfileForm(request.POST, request.FILES, instance=profile)
+    form = ProfileForm(request.POST, instance=profile)
 
     if form.is_valid():
         updated = form.save()
@@ -184,7 +182,7 @@ def edit_profile_api(request):
             "profile": {
                 "display_name": updated.display_name,
                 "bio": updated.bio,
-                "profile_picture": updated.profile_picture.url if updated.profile_picture else None,
+                "profile_picture": updated.profile_picture if updated.profile_picture else None,
                 "favorite_workouts": list(updated.favorite_workouts.values_list("id", flat=True)),
             }
         }, status=200)

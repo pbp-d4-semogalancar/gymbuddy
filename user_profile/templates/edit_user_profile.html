@@ -12,18 +12,24 @@
             Edit Profil
         </h2>
 
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
+        <form method="post" class="space-y-6">
             {% csrf_token %}
 
             <div class="flex flex-col items-center text-center p-10 mb-8 border-b border-gray-200">
                 <img id="profile-preview"
-                     src="{% if user_profile.profile_picture %}
-                            {{ user_profile.profile_picture.url }}
+                    src="{% if user_profile.profile_picture %}
+                            {{ user_profile.profile_picture }}
                          {% else %}
                             {% static 'images/default-avatar.png' %}
                          {% endif %}"
-                     class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5 cursor-pointer hover:opacity-80 transition"
-                     alt="Preview Profile">
+                    class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5 transition"
+                    alt="Preview Profile">
+
+                <!-- GANTI input file → input URL -->
+                <input type="url" name="profile_picture" id="id_profile_picture"
+                       value="{{ user_profile.profile_picture }}"
+                       placeholder="Tempel URL foto profil"
+                       class="w-full p-3 border rounded-lg">
                 
                 <input type="file" name="profile_picture" id="id_profile_picture" class="hidden">
                 <p class="text-sm text-gray-500 mt-2">Klik foto untuk mengganti</p>
@@ -120,18 +126,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputFoto = document.getElementById("id_profile_picture");
     const imgPreview = document.getElementById("profile-preview");
 
-    if (inputFoto && imgPreview) {
-        imgPreview.addEventListener("click", () => inputFoto.click());
-
-        inputFoto.addEventListener("change", function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => imgPreview.src = e.target.result;
-                reader.readAsDataURL(file);
-            }
-        });
-    }
+    inputFoto.addEventListener("input", function() {
+        const url = this.value.trim();
+        imgPreview.src = url || "{% static 'images/default-avatar.png' %}";
+    });
 });
 </script>
 {% endblock %}

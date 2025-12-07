@@ -7,66 +7,82 @@
          class="relative bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform scale-95 opacity-0 transition-all duration-300">
 
         <div class="flex items-center justify-between p-5 border-b border-gray-100">
-            <h3 class="text-2xl font-bold text-gray-800" id="modalTitle">
-                Profil Gymbuddy
-            </h3>
-            <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-600 rounded-lg p-1.5 ml-auto inline-flex items-center">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            <h3 class="text-2xl font-bold text-gray-800" id="modalTitle">Profil Gymbuddy</h3>
+            <button type="button" onclick="closeModal()" 
+                    class="text-gray-400 hover:text-gray-600 rounded-lg p-1.5 ml-auto inline-flex items-center">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" 
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" 
+                          clip-rule="evenodd"></path>
+                </svg>
             </button>
         </div>
 
         <div class="p-6">
-            <form id="profileForm" enctype="multipart/form-data">
+            <!-- HAPUS multipart -->
+            <form id="profileForm">
                 {% csrf_token %}
-                
+
+                <!-- FOTO PROFIL -->
                 <div class="flex flex-col items-center mb-6">
                     <div class="relative group">
-                        <img id="modal-preview-img" 
-                             src="{% static 'images/default-avatar.png' %}" 
+                        <img id="modal-preview-img"
+                             src="{% static 'images/default-avatar.png' %}"
                              class="w-32 h-32 rounded-full object-cover border-4 border-gray-100 shadow-md">
-                        <div onclick="document.getElementById('modal-input-file').click()" 
-                             class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition">
-                            <span class="text-white font-medium text-sm">Ubah Foto</span>
+
+                        <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition"
+                             onclick="document.getElementById('modal-input-url').focus()">
+                            <span class="text-white font-medium text-sm">Ganti URL Foto</span>
                         </div>
                     </div>
-                    <input type="file" name="profile_picture" id="modal-input-file" class="hidden" accept="image/*">
+
+                    <!-- GANTI FILE → URL -->
+                    <input type="url" name="profile_picture" id="modal-input-url"
+                           placeholder="Tempel URL foto profil..."
+                           class="w-full mt-3 p-2 border rounded-lg bg-gray-50">
                 </div>
 
+                <!-- DISPLAY NAME -->
                 <div class="mb-4">
                     <label class="block mb-2 text-sm font-medium text-gray-900">Display Name</label>
                     <input type="text" name="display_name" id="modal-display-name" 
-                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" 
-                           placeholder="Masukkan display name kamu..." required>
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                           placeholder="Masukkan display name..." required>
                 </div>
 
+                <!-- BIO -->
                 <div class="mb-4">
                     <label class="block mb-2 text-sm font-medium text-gray-900">Bio</label>
-                    <textarea name="bio" id="modal-bio" rows="3" 
-                              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" 
-                              placeholder="Ceritain tentang kamu dong..."></textarea>
+                    <textarea name="bio" id="modal-bio" rows="3"
+                              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                              placeholder="Ceritain tentang kamu..."></textarea>
                 </div>
 
+                <!-- WORKOUT FAVORIT -->
                 <div class="mb-6">
                     <label class="block mb-2 text-sm font-medium text-gray-900">Workout Favorit</label>
+
                     <div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border rounded-lg bg-gray-50">
                         {% for value, label in form.favorite_workouts.field.choices %}
                         <label class="cursor-pointer inline-flex items-center px-3 py-1.5 rounded-full border transition-all select-none bg-white text-gray-600 border-gray-200 hover:bg-gray-100">
-                            <input type="checkbox" name="favorite_workouts" value="{{ value }}" 
-                                   class="hidden modal-workout-checkbox" onchange="toggleCheckboxStyle(this)">
+                            <input type="checkbox" name="favorite_workouts" value="{{ value }}"
+                                   class="hidden modal-workout-checkbox"
+                                   onchange="toggleCheckboxStyle(this)">
                             <span class="text-sm font-medium">{{ label }}</span>
                         </label>
                         {% endfor %}
                     </div>
                 </div>
 
+                <!-- BUTTONS -->
                 <div class="flex gap-3">
                     <button type="button" onclick="closeModal()"
-                            class="w-1/3 text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition">
+                            class="w-1/3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm px-5 py-2.5 transition">
                         Batal
                     </button>
-                    
-                    <button type="submit" id="btn-submit" 
-                            class="w-2/3 text-white bg-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center shadow-lg transition">
+
+                    <button type="submit" id="btn-submit"
+                            class="w-2/3 text-white bg-gray-800 hover:bg-gray-900 rounded-lg text-sm px-5 py-2.5 shadow-lg transition">
                         Simpan Profil
                     </button>
                 </div>
@@ -76,44 +92,45 @@
 </div>
 
 <script>
+    // URLs
     var URL_CREATE = "{% url 'user_profile:create_profile_api' %}";
     var URL_EDIT = "{% url 'user_profile:edit_profile_api' %}";
-    var currentMode = 'create'; 
+    var currentMode = 'create';
 
     var modal = document.getElementById('profileModal');
     var modalContent = document.getElementById('profileModalContent');
     var form = document.getElementById('profileForm');
     var imgPreview = document.getElementById('modal-preview-img');
-    var inputFile = document.getElementById('modal-input-file');
+    var inputUrl = document.getElementById('modal-input-url');
 
-    // Fungsi Buka Modal (Global Function)
     function openModal(mode, data = null) {
         currentMode = mode;
         modal.classList.remove('hidden');
-        
-        // Efek Animasi
+
         setTimeout(() => {
             modalContent.classList.remove('scale-95', 'opacity-0');
             modalContent.classList.add('scale-100', 'opacity-100');
         }, 10);
 
-        // Reset Form
         form.reset();
         resetCheckboxStyles();
 
         if (mode === 'create') {
             document.getElementById('modalTitle').innerText = "Buat Profil Baru";
             imgPreview.src = "{% static 'images/default-avatar.png' %}";
-        } 
+        }
         else if (mode === 'edit' && data) {
             document.getElementById('modalTitle').innerText = "Edit Profil";
             document.getElementById('modal-display-name').value = data.display_name;
             document.getElementById('modal-bio').value = data.bio;
-            if(data.profile_picture) imgPreview.src = data.profile_picture;
+
+            if (data.profile_picture) {
+                imgPreview.src = data.profile_picture;
+                inputUrl.value = data.profile_picture;
+            }
 
             if (data.favorite_workouts) {
                 data.favorite_workouts.forEach(id => {
-                    // Cari checkbox berdasarkan value ID
                     const checkbox = document.querySelector(`.modal-workout-checkbox[value="${id}"]`);
                     if (checkbox) {
                         checkbox.checked = true;
@@ -127,18 +144,21 @@
     function closeModal() {
         modalContent.classList.remove('scale-100', 'opacity-100');
         modalContent.classList.add('scale-95', 'opacity-0');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
+        setTimeout(() => modal.classList.add('hidden'), 300);
     }
 
-    // Handle Submit AJAX
+    // PREVIEW GAMBAR DARI URL
+    inputUrl.addEventListener("input", function () {
+        const url = this.value.trim();
+        imgPreview.src = url || "{% static 'images/default-avatar.png' %}";
+    });
+
+    // SUBMIT AJAX
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
         const targetUrl = (currentMode === 'create') ? URL_CREATE : URL_EDIT;
 
-        // Loading State
         const btn = document.getElementById('btn-submit');
         const originalText = btn.innerText;
         btn.innerText = "Menyimpan...";
@@ -147,25 +167,25 @@
         fetch(targetUrl, {
             method: 'POST',
             body: formData,
-            headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+            headers: { "X-CSRFToken": formData.get("csrfmiddlewaretoken") }
         })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            if (data.status === 'CREATED' || data.success) {
+            if (data.success || data.status === "CREATED") {
                 closeModal();
                 location.reload();
             } else {
-                alert("Gagal: " + (data.error || data.message || "Terjadi kesalahan"));
+                alert("Gagal: " + (data.error || data.message));
             }
         })
-        .catch(err => { console.error(err); alert("Error jaringan."); })
+        .catch(err => alert("Error jaringan"))
         .finally(() => {
             btn.innerText = originalText;
             btn.disabled = false;
         });
     });
 
-    // Helper Style Checkbox & Preview
+    // STYLE CHECKBOX
     function toggleCheckboxStyle(checkbox) {
         const label = checkbox.parentElement;
         if (checkbox.checked) {
@@ -184,14 +204,7 @@
         });
     }
 
-    if(inputFile){
-        inputFile.addEventListener('change', function(e) {
-            if (e.target.files[0]) imgPreview.src = URL.createObjectURL(e.target.files[0]);
-        });
-    }
-    
-    // Tutup jika klik area luar modal
-    modal.addEventListener('click', function(e){
-        if(e.target === modal) closeModal();
+    modal.addEventListener('click', e => {
+        if (e.target === modal) closeModal();
     });
 </script>
