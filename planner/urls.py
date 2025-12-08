@@ -11,5 +11,7 @@ urlpatterns = [
     path('api/get-plans-for-date/', views.GetPlansForDateAPIView.as_view(), name='get_plans_for_date'),
     path('log/load-form/<int:plan_id>/', views.load_completion_form, name='load_completion_form'),
     path('log/complete/<int:plan_id>/', views.ajax_complete_log, name='ajax_complete_log'),
+    path('api/get-logs/', views.get_workout_logs_api, name='api_get_logs'),
+    path('api/log/complete/<int:plan_id>/', views.api_complete_log, name='api_complete_log'),
 ]
 
