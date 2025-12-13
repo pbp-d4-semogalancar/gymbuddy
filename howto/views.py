@@ -4,6 +4,14 @@ from .serializers import exercise_to_dict
 from django.shortcuts import render, get_object_or_404
 from .models import Exercise
 from django.http import HttpResponse
+import re
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_GET
+from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
+from .models import Exercise
+from .serializers import exercise_to_dict
 
 def exercise_list(request):
     # Ambil semua data exercise
@@ -38,29 +46,6 @@ def exercise_detail(request, pk):
     return render(request, 'howto/exercise_detail.html', {'exercise': exercise})
 
 
-def exercise_list_api(request):
-    # awalnya: ambil semua
-    exercises = Exercise.objects.all()
-
-    muscle = request.GET.get("muscle")
-    equipment = request.GET.get("equipment")
-
-    if muscle:
-        exercises = exercises.filter(main_muscle=muscle)
-    if equipment:
-        exercises = exercises.filter(equipment=equipment)
-
-    data = [exercise_to_dict(ex) for ex in exercises]
-    return JsonResponse(data, safe=False)
-
-
-
-@csrf_exempt
-def exercise_detail_api(request, pk):
-    exercise = get_object_or_404(Exercise, pk=pk)
-    data = exercise_to_dict(exercise)
-    return JsonResponse(data, safe=False)
-
 # API untuk daftar otot dan peralatan unik
 def muscle_list_api(request):
     muscles = (
@@ -79,14 +64,115 @@ def equipment_list_api(request):
     return JsonResponse(list(equipments), safe=False)
 
 
-def exercise_options_api(request):
-    muscles = Exercise.objects.order_by("main_muscle") \
-                .values_list("main_muscle", flat=True).distinct()
 
-    equipments = Exercise.objects.order_by("equipment") \
-                .values_list("equipment", flat=True).distinct()
+
+
+
+ZERO_WIDTH = r"[\u200B-\u200D\uFEFF]"
+
+def _clean_text(s: str) -> str:
+    if not s:
+        return ""
+    s = re.sub(ZERO_WIDTH, "", s)          # buang zero-width chars
+    s = re.sub(r"\s+", " ", s).strip()     # rapihin spasi
+    return s
+
+def _equipment_category(raw: str) -> str:
+    s = _clean_text(raw)
+    low = s.lower()
+
+    # urutan penting (Self-Assisted jangan ketangkep Assisted)
+    if low.startswith("self-assisted"):
+        return "Self-Assisted"
+    if low.startswith("assisted"):
+        return "Assisted"
+    if low.startswith("band"):
+        return "Band"
+    if low.startswith("body"):
+        return "Body Weight"
+    if low.startswith("cable"):
+        return "Cable"
+    if low.startswith("barbell"):
+        return "Barbell"
+    if low.startswith("dumbbell"):
+        return "Dumbbell"
+    if low.startswith("lever"):
+        return "Lever"
+    if low.startswith("sled"):
+        return "Sled"
+    if low.startswith("smith"):
+        return "Smith"
+    if low.startswith("plyometric"):
+        return "Plyometric"
+    if low.startswith("isometric"):
+        return "Isometric"
+    if low.startswith("suspension") or low.startswith("suspended"):
+        return "Suspension"
+    if low.startswith("weighted"):
+        return "Weighted"
+
+    # fallback: kembalikan versi yang sudah dibersihin
+    return s
+
+def _apply_equipment_filter(qs, equipment_param: str):
+    cat = _equipment_category(equipment_param)
+
+    # Group filter ke semua varian di DB
+    if cat == "Assisted":
+        # Assisted* tapi bukan Self-Assisted*
+        return qs.filter(equipment__istartswith="Assisted").exclude(equipment__istartswith="Self-Assisted")
+    if cat == "Self-Assisted":
+        return qs.filter(equipment__istartswith="Self-Assisted")
+    if cat == "Band":
+        return qs.filter(equipment__icontains="Band")
+    if cat == "Body Weight":
+        return qs.filter(Q(equipment__icontains="Body") | Q(equipment__icontains="Body Weight"))
+    if cat == "Cable":
+        return qs.filter(equipment__icontains="Cable")
+    if cat == "Lever":
+        return qs.filter(equipment__icontains="Lever")
+    if cat == "Sled":
+        return qs.filter(equipment__icontains="Sled")
+    if cat == "Smith":
+        return qs.filter(equipment__icontains="Smith")
+    if cat == "Suspension":
+        return qs.filter(Q(equipment__icontains="Suspension") | Q(equipment__icontains="Suspended"))
+    if cat in {"Barbell", "Dumbbell", "Plyometric", "Isometric", "Weighted"}:
+        return qs.filter(equipment__icontains=cat)
+
+    # kalau user kirim value spesifik, coba exact match juga
+    return qs.filter(equipment__iexact=_clean_text(equipment_param))
+
+@require_GET
+def exercise_options_api(request):
+    muscles_raw = Exercise.objects.values_list("main_muscle", flat=True).distinct()
+    equipments_raw = Exercise.objects.values_list("equipment", flat=True).distinct()
+
+    muscles = sorted({ _clean_text(m) for m in muscles_raw if m })
+    equipment_categories = sorted({ _equipment_category(e) for e in equipments_raw if e })
 
     return JsonResponse({
-        "muscles": list(muscles),
-        "equipments": list(equipments),
-    }, safe=False)
+        "muscles": muscles,
+        "equipments": equipment_categories,  # << unik (kategori)
+    })
+
+@require_GET
+def exercise_list_api(request):
+    qs = Exercise.objects.all()
+
+    muscle = request.GET.get("muscle")
+    equipment = request.GET.get("equipment")
+
+    if muscle:
+        qs = qs.filter(main_muscle=_clean_text(muscle))
+
+    if equipment:
+        qs = _apply_equipment_filter(qs, equipment)
+
+    data = [exercise_to_dict(ex) for ex in qs]
+    return JsonResponse(data, safe=False)
+
+@csrf_exempt
+def exercise_detail_api(request, pk):
+    ex = get_object_or_404(Exercise, pk=pk)
+    return JsonResponse(exercise_to_dict(ex), safe=False)
