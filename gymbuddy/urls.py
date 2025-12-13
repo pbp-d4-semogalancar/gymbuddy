@@ -27,7 +27,6 @@ urlpatterns = [
     path('', include('landing_page.urls')),
     path('auth/', include('authentication.urls')),
     path('howto/', include('howto.urls')),
-    path('auth/', include('authentication.urls')),
     path('profile/', include('user_profile.urls')),
     path('community/', include('community.urls')),
     path('planner/', include('planner.urls', namespace='planner')), 

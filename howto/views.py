@@ -1,17 +1,15 @@
 from django.http import JsonResponse
-from .models import Exercise
+from .models import Exercise, ExerciseFavorite
 from .serializers import exercise_to_dict
 from django.shortcuts import render, get_object_or_404
-from .models import Exercise
 from django.http import HttpResponse
 import re
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
-from .models import Exercise
-from .serializers import exercise_to_dict
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_GET, require_POST
+
+
 
 def exercise_list(request):
     # Ambil semua data exercise
@@ -176,3 +174,33 @@ def exercise_list_api(request):
 def exercise_detail_api(request, pk):
     ex = get_object_or_404(Exercise, pk=pk)
     return JsonResponse(exercise_to_dict(ex), safe=False)
+
+
+@require_GET
+def favorite_ids_api(request):
+    # PENTING: jangan pakai @login_required (itu redirect HTML)
+    if not request.user.is_authenticated:
+        return JsonResponse({"detail": "Authentication required"}, status=401)
+
+    ids = list(
+        ExerciseFavorite.objects.filter(user=request.user)
+        .values_list("exercise_id", flat=True)
+    )
+    return JsonResponse({"ids": ids})
+
+
+@csrf_exempt
+@require_POST
+def toggle_favorite_api(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({"detail": "Authentication required"}, status=401)
+
+    ex = get_object_or_404(Exercise, pk=pk)
+
+    fav = ExerciseFavorite.objects.filter(user=request.user, exercise=ex).first()
+    if fav:
+        fav.delete()
+        return JsonResponse({"bookmarked": False})
+
+    ExerciseFavorite.objects.create(user=request.user, exercise=ex)
+    return JsonResponse({"bookmarked": True})
