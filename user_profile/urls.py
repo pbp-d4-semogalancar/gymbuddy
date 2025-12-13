@@ -12,4 +12,5 @@ urlpatterns = [
     path('json/<int:user_id>/', views.show_json_by_id, name='show_json_by_id'),
     path('create/api/', views.create_profile_api, name='create_profile_api'),
     path('edit/api/', views.edit_profile_api, name='edit_profile_api'),
+    path('proxy-image/', views.proxy_image, name='proxy_image'),
 ]

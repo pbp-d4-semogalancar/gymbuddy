@@ -19,7 +19,6 @@
         </div>
 
         <div class="p-6">
-            <!-- HAPUS multipart -->
             <form id="profileForm">
                 {% csrf_token %}
 
@@ -125,8 +124,11 @@
             document.getElementById('modal-bio').value = data.bio;
 
             if (data.profile_picture) {
-                imgPreview.src = data.profile_picture;
-                inputUrl.value = data.profile_picture;
+                inputUrl.value = data.profile_picture;   // 🔑 ISI VALUE INPUT
+                imgPreview.src = data.profile_picture;   // 🔑 UPDATE PREVIEW
+            } else {
+                inputUrl.value = "";
+                imgPreview.src = "{% static 'images/default-avatar.png' %}";
             }
 
             if (data.favorite_workouts) {
@@ -156,18 +158,31 @@
     // SUBMIT AJAX
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        const formData = new FormData(this);
-        const targetUrl = (currentMode === 'create') ? URL_CREATE : URL_EDIT;
 
-        const btn = document.getElementById('btn-submit');
-        const originalText = btn.innerText;
-        btn.innerText = "Menyimpan...";
-        btn.disabled = true;
+        const formData = new FormData(this);
+
+        // 🔑 AMBIL CHECKBOX YANG DICENTANG
+        const selectedWorkoutIds = Array.from(
+            document.querySelectorAll('.modal-workout-checkbox:checked')
+        ).map(cb => parseInt(cb.value));
+
+        // 🔥 HAPUS SEMUA favorite_workouts DARI FORM
+        formData.delete('favorite_workouts');
+
+        // 🔥 KIRIM ULANG DALAM BENTUK JSON STRING
+        formData.append(
+            'favorite_workouts',
+            JSON.stringify(selectedWorkoutIds)
+        );
+
+        const targetUrl = (currentMode === 'create') ? URL_CREATE : URL_EDIT;
 
         fetch(targetUrl, {
             method: 'POST',
             body: formData,
-            headers: { "X-CSRFToken": formData.get("csrfmiddlewaretoken") }
+            headers: {
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+            }
         })
         .then(res => res.json())
         .then(data => {
@@ -178,11 +193,7 @@
                 alert("Gagal: " + (data.error || data.message));
             }
         })
-        .catch(err => alert("Error jaringan"))
-        .finally(() => {
-            btn.innerText = originalText;
-            btn.disabled = false;
-        });
+        .catch(err => alert("Error jaringan"));
     });
 
     // STYLE CHECKBOX

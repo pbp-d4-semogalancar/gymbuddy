@@ -61,7 +61,7 @@
                 <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">
                     Bio
                 </h3>
-                <p id="bio" class="text-base text-gray-600 leading-relaxed break-words italic">
+                <p id="bio" class="text-base text-gray-600 leading-relaxed break-words">
                     Loading...
                 </p>
             </div>
@@ -114,8 +114,7 @@ function openEditProfileWrapper() {
     const myProfileData = {
         display_name: '{{ user_profile.display_name|escapejs }}',
         bio: '{{ user_profile.bio|escapejs|default:"" }}',
-        profile_picture: '{% if user_profile.profile_picture %}{{ user_profile.profile_picture.url }}{% endif %}',
-        
+        profile_picture: '{% if user_profile.profile_picture %}{{ user_profile.profile_picture|escapejs}}{% endif %}',
         favorite_workouts: savedWorkoutIds
     };
 
@@ -144,7 +143,9 @@ function renderProfile(p) {
         p.favorite_workouts.forEach(w => {
             const badge = document.createElement("span");
             badge.className = "bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium";
-            badge.textContent = w;
+
+            badge.textContent = w.exercise_name;
+
             favoriteWorkouts.appendChild(badge);
         });
     } else {
