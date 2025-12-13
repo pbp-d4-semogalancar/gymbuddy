@@ -10,9 +10,138 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST 
 from django.utils import timezone 
 from django.db.models.functions import ExtractMonth, ExtractYear 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from howto.models import Exercise
 from .models import WorkoutPlan
 from .forms import LogCompletionForm 
+
+@login_required
+def get_workout_logs_api(request):
+    """
+    API endpoint untuk mengambil data log latihan (JSON) untuk Flutter.
+    Menerima parameter GET: year, month, week_start_date
+    """
+    selected_year = request.GET.get('year')
+    selected_month = request.GET.get('month')
+    selected_week_start = request.GET.get('week_start_date')
+
+    today = timezone.now().date()
+    
+    # 1. Tentukan Tahun dan Bulan
+    try:
+        year = int(selected_year) if selected_year else today.year
+        month = int(selected_month) if selected_month else today.month
+    except ValueError:
+        year = today.year
+        month = today.month
+
+    # 2. Filter Queryset (Base)
+    queryset = WorkoutPlan.objects.filter(user=request.user)
+
+    # 3. Filter Berdasarkan Periode (Minggu atau Bulan)
+    filter_type = 'month'
+    period_start_date = None
+    period_end_date = None
+
+    if selected_year and selected_month and selected_week_start:
+        try:
+            start_date = datetime.datetime.strptime(selected_week_start, '%Y-%m-%d').date()
+            end_date = start_date + datetime.timedelta(days=6)
+            
+            queryset = queryset.filter(
+                plan_date__year=year,
+                plan_date__month=month,
+                plan_date__range=[start_date, end_date]
+            )
+            filter_type = 'week'
+        except ValueError:
+            # Fallback ke filter bulan jika format tanggal salah
+            queryset = queryset.filter(plan_date__year=year, plan_date__month=month)
+    else:
+        # Default: Filter Bulan
+        queryset = queryset.filter(plan_date__year=year, plan_date__month=month)
+
+    # Urutkan
+    queryset = queryset.order_by('plan_date', 'id')
+
+    # 4. Hitung Statistik
+    total_plans = queryset.count()
+    completed_plans = queryset.filter(is_completed=True).count()
+    
+    on_time_completed = 0
+    plans_data = []
+    
+    nama_bulan_id = [
+        None, 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ]
+
+    for plan in queryset:
+        # Hitung on-time
+        if plan.is_completed and plan.completed_at and plan.completed_at.date() <= plan.plan_date:
+            on_time_completed += 1
+            
+        # Serialize data plan ke JSON object
+        plans_data.append({
+            'id': plan.id,
+            'user': plan.user.id,
+            'exercise_id': plan.exercise.id,
+            'exercise_name': plan.exercise.exercise_name, # Penting untuk tampilan Flutter
+            'sets': plan.sets,
+            'reps': plan.reps,
+            'plan_date': plan.plan_date.strftime('%Y-%m-%d'),
+            'description': plan.description,
+            'is_completed': plan.is_completed,
+            'completed_at': plan.completed_at.strftime('%Y-%m-%d %H:%M:%S') if plan.completed_at else None,
+        })
+
+    percentage = (on_time_completed / total_plans) * 100 if total_plans > 0 else 0
+
+    # 5. Tentukan Nama Periode
+    month_name = nama_bulan_id[month]
+    if filter_type == 'week' and selected_week_start:
+        # Format tanggal agar cantik (misal: 20 Oct - 26 Oct) - Opsi sederhana
+        period_name = f"Minggu ({selected_week_start}) - {month_name} {year}"
+    else:
+        period_name = f"Bulan {month_name} {year}"
+
+    # 6. Return JSON Response
+    return JsonResponse({
+        'plans': plans_data,
+        'total_plans': total_plans,
+        'completed_plans': completed_plans,
+        'on_time_completed': on_time_completed,
+        'percentage': round(percentage, 1),
+        'period_name': period_name,
+    })
+
+@csrf_exempt # Gunakan csrf_exempt agar Flutter mudah POST data tanpa token CSRF (untuk development)
+@require_POST
+@login_required
+def api_complete_log(request, plan_id):
+    """
+    API endpoint untuk menandai log selesai dari Flutter.
+    """
+    plan = get_object_or_404(WorkoutPlan, id=plan_id, user=request.user)
+    
+    # Ambil data dari body request
+    description = request.POST.get('description', '')
+
+    # Update data
+    if not plan.is_completed:
+        plan.is_completed = True
+        plan.completed_at = timezone.now()
+    
+    plan.description = description
+    plan.save()
+
+    return JsonResponse({
+        "status": "success",
+        "message": "Log berhasil diperbarui!",
+        "id": plan.id,
+        "is_completed": plan.is_completed
+    })
 
 def get_weeks_in_month(year, month):
     """
