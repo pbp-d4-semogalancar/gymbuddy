@@ -10,7 +10,6 @@ from django.http import JsonResponse
 import json
 from django.contrib.auth.models import User
 
-@csrf_exempt
 def register_user(request):
     form = UserCreationForm()
 
@@ -25,7 +24,6 @@ def register_user(request):
     }
     return render(request, 'register.html', context)
 
-@csrf_exempt
 def login_user(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -45,7 +43,6 @@ def login_user(request):
     }
     return render(request, 'login.html', context)
 
-@csrf_exempt
 def logout_user(request):
     logout(request)
     response = HttpResponseRedirect(reverse('authentication:login_user'))
@@ -128,7 +125,6 @@ def login_user_api(request):
         return JsonResponse(context, status=401)
 
 
-@csrf_exempt
 def logout_user_api(request):
     username = request.user.username
 

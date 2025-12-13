@@ -9,6 +9,8 @@ import requests
 from .forms import ProfileForm
 from .models import Profile
 from django.views.decorators.csrf import csrf_exempt
+from howto.models import Exercise
+from howto.serializers import exercise_to_dict
 
 
 @login_required
@@ -81,24 +83,31 @@ def detail_profile(request, user_id, username):
     }
     return render(request, 'show_user_profile.html', context)
 
-@login_required
+@csrf_exempt
 @require_http_methods(["DELETE", "POST"])
 def delete_profile(request, user_id, username):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "success": False,
+            "message": "User belum login"
+        }, status=401)
+
     profile = get_object_or_404(Profile, user__id=user_id, user__username=username)
 
     if request.user != profile.user:
         return JsonResponse({
-            "success": False, 
-            "message": "Kamu tidak bisa menghapus profil orang lain!"
+            "success": False,
+            "message": "Tidak diizinkan"
         }, status=403)
 
-    user = profile.user
-    user.delete()
+    from django.contrib.auth import logout
+    logout(request)
+    profile.user.delete()
 
     return JsonResponse({
-        "success": True, 
-        "message": "Profil berhasil dihapus."
-    }, status=200)
+        "success": True,
+        "message": "Profil berhasil dihapus"
+    })
 
 def show_json(request):
     try:
@@ -207,7 +216,6 @@ def edit_profile_api(request):
         }
     })
 
-
 def proxy_image(request):
     image_url = request.GET.get('url')
     if not image_url:
@@ -225,3 +233,10 @@ def proxy_image(request):
         )
     except requests.RequestException as e:
         return HttpResponse(f'Error fetching image: {str(e)}', status=500)
+
+# ambil dari fitur howto
+def favorite_workouts_api(request):
+    data = list(
+        Exercise.objects.values("id", "exercise_name")
+    )
+    return JsonResponse(data, safe=False)

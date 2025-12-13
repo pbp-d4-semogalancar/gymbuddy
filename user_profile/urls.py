@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from user_profile import views
 
 app_name = 'user_profile'
 
@@ -13,4 +13,5 @@ urlpatterns = [
     path('create/api/', views.create_profile_api, name='create_profile_api'),
     path('edit/api/', views.edit_profile_api, name='edit_profile_api'),
     path('proxy-image/', views.proxy_image, name='proxy_image'),
+    path('list-workouts/', views.favorite_workouts_api, name='favorite_workouts_api'),
 ]
