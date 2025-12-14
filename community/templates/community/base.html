@@ -4,8 +4,86 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}GymBuddy Community{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* --- RESET & GLOBAL --- */
+        body { background-color: #ffffff; color: #1c1e21; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 10px; }
+        .container { max-width: 800px; margin: auto; }
+        a { color: #1c232e; text-decoration: none; cursor: pointer; }
+        a:hover { text-decoration: underline; }
+        
+        /* --- BUTTONS --- */
+        .btn { 
+            background-color: #364359; 
+            color: #ffffff !important; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            display: inline-block; 
+            border: none; 
+            cursor: pointer; 
+            transition: background-color 0.2s; 
+            text-align: center;
+            line-height: normal;
+        }
+        .btn:hover { background-color: #2a3444; text-decoration: none; }
+        .btn-primary { background-color: #364359; color: white !important; }
+        .btn-primary:hover { background-color: #2a3444; }
+        .btn-danger { background-color: #dc3545; color: white !important; }
+        .btn-danger:hover { background-color: #841520; }
+        .btn-secondary { background-color: transparent; border: 1px solid #6c757d; color: #212529 !important; }
+        .btn-secondary:hover { background-color: #e9ecef; }
+        
+        /* --- FORMS & INPUTS --- */
+        textarea, input[type="text"], input[type="password"] { width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 10px; background-color: #f0f2f5; border: 1px solid #ccd0d5; color: #1c1e21; border-radius: 5px; }
+
+        /* PERBAIKAN DROPDOWN (SELECT) */
+        select, #reply-sort-select {
+            appearance: auto !important;
+            background-color: #f0f2f5 !important;
+            color: #1c1e21 !important;
+            border: 1px solid #ccd0d5 !important;
+            padding: 8px 12px !important;
+            border-radius: 5px !important;
+            cursor: pointer;
+        }
+        select option { background-color: #ffffff; color: #1c1e21; }
+
+        /* --- CARDS & LAYOUT --- */
+        .card { background-color: #1c232e; color: #f8f9fa; border: 1px solid #d8dbdf; border-radius: 8px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+        .header-card { background-color: #1c232e; color: #f8f9fa; border: none; }
+        .header-card .btn { background-color: #5a6268; color: white; }
+        
+        /* --- POST CONTENT --- */
+        .post-body p, .reply-content, .top-reply-preview p { overflow-wrap: break-word; word-wrap: break-word; word-break: break-all; white-space: normal; }
+        .post-header h3 { margin: 0; font-size: 1.25rem; font-weight: bold; }
+        
+        /* --- META ACTIONS --- */
+        .post-meta { font-size: 0.9em; color: #f8f9fa; margin-top: 15px; border-top: 1px solid #e4e6eb; padding-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .meta-actions a { color: #f8f9fa; font-weight: bold; margin-left: 15px; transition: color 0.2s; cursor: pointer; }
+        .meta-actions a:hover { text-decoration: none; color: #cccccc; }
+        .meta-actions a.delete-link { color: #dc3545; }
+        .meta-actions a.delete-link:hover { color: #ff6b6b; }
+
+        /* --- NESTED REPLIES --- */
+        .nested-replies { margin-left: 20px; padding-left: 20px; border-left: 2px solid #e4e6eb; }
+        .reply-card { border-bottom: 1px solid #e4e6eb; padding: 15px 0; }
+        .reply-card:last-child { border-bottom: none; padding-bottom: 0; }
+
+        /* --- MODALS --- */
+        .modal-overlay { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); justify-content: center; align-items: center; }
+        .modal-content { background-color: #ffffff; color: #1c1e21; padding: 25px; border-radius: 8px; width: 80%; max-width: 500px; position: relative; animation: fadeIn 0.3s; z-index: 3001; }
+        @keyframes fadeIn { from {opacity: 0; transform: scale(0.9);} to {opacity: 1; transform: scale(1);} }
+        .modal-close { position: absolute; top: 10px; right: 20px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        
+        /* --- TOAST --- */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 4000; }
+        .toast { background-color: #28a745; color: white; border-radius: 5px; padding: 15px; margin-bottom: 10px; min-width: 250px; box-shadow: 0 0 10px rgba(0,0,0,0.2); opacity: 0; transform: translateX(100%); animation: slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards; }
+        .toast.error { background-color: #dc3545; }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
+    </style>
 </head>
 <body>
     {% csrf_token %}
@@ -13,6 +91,249 @@
         {% block content %}{% endblock %}
     </div>
     <div id="toast-container"></div>
-    <script src="{% static 'js/main.js' %}"></script>
+
+    <div id="globalDeleteModal" class="modal-overlay"> 
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>Konfirmasi Penghapusan</h3>
+            <p>Apakah Anda yakin? Tindakan ini tidak dapat diurungkan.</p>
+            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn cancel-delete-btn">Batal</button>
+                <button id="globalConfirmDeleteBtn" class="btn btn-danger">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const getCsrfToken = () => document.querySelector('input[name=csrfmiddlewaretoken]')?.value || '';
+
+            function showToast(message, type = 'success') {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), 5000);
+            }
+
+            function showModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) modal.style.display = 'flex';
+                else console.error(`Modal with ID '${modalId}' not found.`);
+            }
+
+            function hideModal(modalElement) {
+                if (modalElement) modalElement.style.display = 'none';
+            }
+
+            document.body.addEventListener('click', async function(e) {
+                const target = e.target;
+                const csrfToken = getCsrfToken();
+
+                // Close Modal Logic
+                if (target.classList.contains('modal-close') || target.classList.contains('cancel-delete-btn')) {
+                    hideModal(target.closest('.modal-overlay'));
+                    return;
+                }
+                if (target.classList.contains('modal-overlay')) {
+                    hideModal(target);
+                    return;
+                }
+
+                if (target.id === 'openCreateThreadModalBtn') {
+                    showModal('createThreadModal');
+                }
+
+                const replyToBtn = target.closest('.reply-to-btn');
+                if (replyToBtn) {
+                    e.preventDefault();
+                    const parentId = replyToBtn.dataset.parentId || '';
+                    const modal = document.getElementById('replyModal');
+                    if(modal) {
+                        modal.querySelector('#parent-reply-id').value = parentId;
+                        modal.querySelector('#reply-modal-title').textContent = parentId ? 'Balas Komentar Ini' : 'Tulis Balasan untuk Thread';
+                        showModal('replyModal');
+                    }
+                }
+
+                const editThreadBtn = target.closest('.edit-thread-btn');
+                if (editThreadBtn) {
+                    e.preventDefault();
+                    const modal = document.getElementById('editThreadModal');
+                    if(modal){
+                        modal.querySelector('#edit-thread-id').value = editThreadBtn.dataset.threadId;
+                        modal.querySelector('#edit-thread-title').value = editThreadBtn.dataset.title;
+                        modal.querySelector('#edit-thread-content').value = editThreadBtn.dataset.content;
+                        showModal('editThreadModal');
+                    }
+                }
+
+                const editReplyBtn = target.closest('.edit-reply-btn');
+                if (editReplyBtn) {
+                    e.preventDefault();
+                    const modal = document.getElementById('editReplyModal');
+                    if(modal){
+                        modal.querySelector('#edit-reply-id').value = editReplyBtn.dataset.replyId;
+                        modal.querySelector('#edit-reply-content').value = editReplyBtn.dataset.content;
+                        showModal('editReplyModal');
+                    }
+                }
+
+                // --- 1. TOMBOL "HAPUS" (MEMBUKA MODAL GLOBAL) ---
+                const deleteBtn = target.closest('.delete-thread-btn, .delete-reply-btn');
+                if (deleteBtn) {
+                    e.preventDefault();
+                    const id = deleteBtn.dataset.threadId || deleteBtn.dataset.replyId;
+                    const type = deleteBtn.classList.contains('delete-thread-btn') ? 'thread' : 'reply';
+                    
+                    // Kita panggil modal yang ID-nya baru (globalDeleteModal)
+                    const modal = document.getElementById('globalDeleteModal');
+                    if (modal) {
+                        // Kita cari tombol konfirmasi yang ID-nya juga baru (globalConfirmDeleteBtn)
+                        const confirmBtn = modal.querySelector('#globalConfirmDeleteBtn');
+                        if (confirmBtn) {
+                            confirmBtn.dataset.id = id;
+                            confirmBtn.dataset.type = type;
+                            showModal('globalDeleteModal');
+                        } else {
+                            console.error("Tombol 'globalConfirmDeleteBtn' tidak ditemukan!");
+                        }
+                    } else {
+                        console.error("Modal 'globalDeleteModal' tidak ditemukan!");
+                    }
+                }
+
+                // --- 2. AKSI "YA, HAPUS" (ID BARU) ---
+                if (target.id === 'globalConfirmDeleteBtn') {
+                    const id = target.dataset.id;
+                    const type = target.dataset.type;
+                    const modal = document.getElementById('globalDeleteModal');
+                    
+                    const url = type === 'thread' ? `/community/thread/${id}/delete/` : `/community/reply/${id}/delete/`;
+                    
+                    try {
+                        const response = await fetch(url, { method: 'POST', headers: {'X-CSRFToken': csrfToken} });
+                        if (response.ok) {
+                            const elementToRemove = document.getElementById(`${type}-${id}`);
+                            if (elementToRemove) elementToRemove.remove();
+                            showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} berhasil dihapus.`, 'success');
+                        } else { 
+                            showToast(`Gagal menghapus ${type}. Status: ${response.status}`, 'error'); 
+                        }
+                    } catch (err) {
+                        showToast(`Terjadi kesalahan jaringan.`, 'error');
+                    }
+                    hideModal(modal);
+                }
+            });
+
+            // --- FORM SUBMISSIONS ---
+            const createThreadForm = document.getElementById('create-thread-form');
+            if (createThreadForm) {
+                createThreadForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const response = await fetch(this.action, { method: 'POST', body: formData, headers: {'X-CSRFToken': getCsrfToken()} });
+                    if (response.ok) {
+                        const data = await response.json();
+                        document.getElementById('thread-list-container').insertAdjacentHTML('afterbegin', data.html_card);
+                        const noThreadMsg = document.getElementById('no-threads-yet');
+                        if(noThreadMsg) noThreadMsg.remove();
+                        this.reset();
+                        hideModal(document.getElementById('createThreadModal'));
+                        showToast('Thread berhasil dibuat!', 'success');
+                    } else { showToast('Gagal membuat thread.', 'error'); }
+                });
+            }
+
+            const addReplyForm = document.getElementById('reply-form-modal');
+            if (addReplyForm) {
+                addReplyForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const content = this.querySelector('textarea').value;
+                    const parentId = this.querySelector('#parent-reply-id').value;
+                    const response = await fetch(this.dataset.url, {
+                        method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken()},
+                        body: JSON.stringify({ content, parent_id: parentId }),
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const noReplyMsg = document.getElementById('no-replies-yet');
+                        if(noReplyMsg) noReplyMsg.remove();
+                        let container = data.parent_id ? document.getElementById(`children-of-${data.parent_id}`) : document.getElementById('reply-section');
+                        container.insertAdjacentHTML('beforeend', data.html_reply);
+                        this.reset();
+                        hideModal(document.getElementById('replyModal'));
+                        showToast('Balasan berhasil dikirim!', 'success');
+                    } else { showToast('Gagal mengirim balasan.', 'error'); }
+                });
+            }
+
+            const editThreadForm = document.getElementById('edit-thread-form');
+            if (editThreadForm) {
+                editThreadForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const id = this.querySelector('#edit-thread-id').value;
+                    const title = this.querySelector('#edit-thread-title').value;
+                    const content = this.querySelector('#edit-thread-content').value;
+                    const response = await fetch(`/community/thread/${id}/edit/`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken()},
+                        body: JSON.stringify({ title, content }),
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const card = document.getElementById(`thread-${id}`);
+                        card.querySelector('.post-header h3 a').textContent = data.title;
+                        card.querySelector('.post-body p').textContent = data.content;
+                        const editBtn = card.querySelector('.edit-thread-btn');
+                        editBtn.dataset.title = data.title;
+                        editBtn.dataset.content = data.content;
+                        hideModal(document.getElementById('editThreadModal'));
+                        showToast('Thread berhasil diperbarui.', 'success');
+                    } else { showToast('Gagal memperbarui thread.', 'error'); }
+                });
+            }
+
+            const editReplyForm = document.getElementById('edit-reply-form');
+            if (editReplyForm) {
+                editReplyForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const id = this.querySelector('#edit-reply-id').value;
+                    const content = this.querySelector('#edit-reply-content').value;
+                    const response = await fetch(`/community/reply/${id}/edit/`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken()},
+                        body: JSON.stringify({ content }),
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const contentP = document.querySelector(`#reply-${id} .reply-content p`);
+                        if(contentP) contentP.textContent = data.content;
+                        const editBtn = document.querySelector(`#reply-${id} .edit-reply-btn`);
+                        if(editBtn) editBtn.dataset.content = data.content;
+                        hideModal(document.getElementById('editReplyModal'));
+                        showToast('Balasan berhasil diperbarui.', 'success');
+                    } else { showToast('Gagal memperbarui balasan.', 'error'); }
+                });
+            }
+
+            const replySortSelect = document.getElementById('reply-sort-select');
+            if (replySortSelect) {
+                replySortSelect.addEventListener('change', function() {
+                    const sortBy = this.value;
+                    const replySection = document.getElementById('reply-section');
+                    const replies = Array.from(replySection.children).filter(el => el.classList.contains('reply-card'));
+                    replies.sort((a, b) => {
+                        if (sortBy === 'oldest') {
+                            return parseInt(a.dataset.timestamp, 10) - parseInt(b.dataset.timestamp, 10);
+                        } else {
+                            return parseInt(b.dataset.timestamp, 10) - parseInt(a.dataset.timestamp, 10);
+                        }
+                    });
+                    replies.forEach(reply => replySection.appendChild(reply));
+                });
+            }
+        });
+    </script>
 </body>
 </html>
