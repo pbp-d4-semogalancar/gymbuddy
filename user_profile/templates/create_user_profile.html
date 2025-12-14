@@ -13,17 +13,19 @@
             Lengkapi Profilmu
         </h2>
 
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
+        <form method="post" class="space-y-6">
             {% csrf_token %}
 
             <!-- Preview Foto Profil -->
             <div class="flex flex-col items-center text-center p-10 mb-8 border-b border-gray-200">
                 <img id="profile-preview"
-                     src="{% static 'images/default-avatar.png' %}"
-                     class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5 cursor-pointer"
-                     alt="Preview Profile">
+                    src="{% static 'images/default-avatar.png' %}"
+                    class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-5"
+                    alt="Preview Profile">
 
-                <input type="file" name="profile_picture" id="id_profile_picture" class="hidden">
+                <input type="url" name="profile_picture" id="id_profile_picture"
+                    class="w-full p-3 border rounded-lg"
+                    placeholder="Tempel URL foto profil di sini">
             </div>
 
             <!-- Display Name -->
@@ -71,7 +73,9 @@
                                 <input type="checkbox"
                                     name="{{ form.favorite_workouts.html_name }}"
                                     value="{{ value }}"
-                                    class="hidden"
+                                    
+                                    class="hidden workout-checkbox"  
+                                    
                                     {% if value in selected_list %}checked{% endif %}
                                 >
                                 <span class="font-medium">{{ label }}</span>
@@ -95,37 +99,46 @@
 </div>
 
 <script>
-    // Foto profil preview
-    const input = document.getElementById("id_profile_picture");
-    const preview = document.getElementById("profile-preview");
+document.addEventListener('DOMContentLoaded', function() {
+    // ambil checkbox dari favorite-workouts
+    const checkboxes = document.querySelectorAll('label input[type="checkbox"]');
 
-    preview.addEventListener("click", () => input.click());
 
-    input.addEventListener("change", function() {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = e => preview.src = e.target.result;
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Toggle UI checkbox
-    document.querySelectorAll('label > input[type="checkbox"]').forEach(checkbox => {
+    function updateStyle(checkbox) {
         const label = checkbox.parentElement;
+        
+        if (checkbox.checked) {
+            // aktif
+            label.classList.remove('bg-white', 'text-gray-800', 'hover:bg-gray-200', 'border-gray-300');
+            label.classList.add('bg-gray-800', 'text-white', 'border-gray-800');
+            console.log("Terpilih:", checkbox.value);
+        } else {
+            // nonaktif
+            label.classList.remove('bg-gray-800', 'text-white', 'border-gray-800');
+            label.classList.add('bg-white', 'text-gray-800', 'hover:bg-gray-200', 'border-gray-300');
+        }
+    }
 
-        label.addEventListener('click', (e) => {
-            setTimeout(() => {
-                if (checkbox.checked) {
-                    label.classList.add('bg-gray-800', 'text-white');
-                    label.classList.remove('bg-gray-100', 'text-gray-800', 'hover:bg-gray-200');
-                } else {
-                    label.classList.remove('bg-gray-800', 'text-white');
-                    label.classList.add('bg-gray-100', 'text-gray-800', 'hover:bg-gray-200');
-                }
-            }, 0);
+    // event listener
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateStyle(this);
         });
     });
+
+    // foto profil
+    const inputFoto = document.getElementById("id_profile_picture");
+    const previewFoto = document.getElementById("profile-preview");
+
+    inputFoto.addEventListener("input", function() {
+        const url = this.value;
+        if (url) {
+            previewFoto.src = url;
+        } else {
+            previewFoto.src = "{% static 'images/default-avatar.png' %}";
+        }
+    });
+});
 </script>
 
 {% endblock %}

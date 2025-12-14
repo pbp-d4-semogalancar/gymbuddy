@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 import datetime
 from django.views.decorators.csrf import csrf_exempt
@@ -10,7 +10,6 @@ from django.http import JsonResponse
 import json
 from django.contrib.auth.models import User
 
-@csrf_exempt
 def register_user(request):
     form = UserCreationForm()
 
@@ -25,7 +24,6 @@ def register_user(request):
     }
     return render(request, 'register.html', context)
 
-@csrf_exempt
 def login_user(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -45,7 +43,6 @@ def login_user(request):
     }
     return render(request, 'login.html', context)
 
-@csrf_exempt
 def logout_user(request):
     logout(request)
     response = HttpResponseRedirect(reverse('authentication:login_user'))
@@ -59,17 +56,15 @@ def register_user_api(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            username = data.get('username', '').strip() # Ambil dan bersihkan
+            username = data.get('username', '').strip()
             password1 = data.get('password1', '').strip()
             password2 = data.get('password2', '').strip()
 
-            # --- VALIDASI TAMBAHAN (INI PENTING) ---
             if not username or not password1:
                 return JsonResponse({
                     "status": False,
                     "message": "Username and password cannot be empty."
                 }, status=400)
-            # --- AKHIR VALIDASI TAMBAHAN ---
 
             if password1 != password2:
                 return JsonResponse({
@@ -90,12 +85,11 @@ def register_user_api(request):
                 "username": user.username,
                 "status": True,
                 "message": "User created successfully!"
-            }, status=201) # Ganti ke 201 (Created)
+            }, status=201)
         
         except json.JSONDecodeError:
              return JsonResponse({"status": False, "message": "Invalid JSON data."}, status=400)
         except Exception as e:
-            # Menangkap semua error lain (termasuk dari create_user)
             return JsonResponse({"status": False, "message": str(e)}, status=500)
     
     else:
@@ -130,7 +124,7 @@ def login_user_api(request):
         }
         return JsonResponse(context, status=401)
 
-@csrf_exempt
+
 def logout_user_api(request):
     username = request.user.username
 

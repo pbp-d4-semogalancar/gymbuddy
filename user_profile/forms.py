@@ -26,7 +26,7 @@ class ProfileForm(forms.ModelForm):
             }),
             'bio': forms.Textarea(attrs={
                 'class': 'w-full border border-gray-300 rounded-lg p-2 resize-none h-64 focus:border-gray-800',
-                'placeholder': 'Tulis bio kamu...',
+                'placeholder': 'Ceritain tentang kamu dong...',
             }),
         }
 

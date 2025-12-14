@@ -1,0 +1,92 @@
+<div id="deleteModal" tabindex="-1" aria-hidden="true" 
+     class="hidden fixed inset-0 z-[60] w-full flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity duration-300">
+    
+    <div id="deleteModalContent" 
+         class="relative bg-white rounded-xl shadow-2xl w-full max-w-md transform scale-95 opacity-0 transition-all duration-300 overflow-hidden">
+
+        <div class="bg-red-50 p-6 flex flex-col items-center text-center border-b border-red-100">
+            <div class="p-3 rounded-full bg-red-100 mb-4">
+                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Hapus Profil Permanen?</h3>
+            <p class="text-sm text-gray-500 mt-2">
+                Tindakan ini <strong>tidak dapat dibatalkan</strong>. Semua data, riwayat workout, dan foto profil Anda akan hilang selamanya.
+            </p>
+        </div>
+
+        <div class="p-6 flex gap-3">
+            <button type="button" onclick="closeDeleteModal()" 
+                    class="flex-1 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
+                Batal
+            </button>
+            
+            <button type="button" onclick="confirmDeleteProfile()" id="btn-confirm-delete"
+                    class="flex-1 px-4 py-2 bg-red-600 border border-transparent text-base font-medium rounded-lg text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition shadow-md">
+                Ya, Hapus
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var deleteModal = document.getElementById('deleteModal');
+    var deleteModalContent = document.getElementById('deleteModalContent');
+
+    var URL_DELETE_ACTION = "{% url 'user_profile:delete_profile' user_profile.user.id user_profile.user.username %}";
+    var URL_REDIRECT_AFTER = "{% url 'landing_page:landing_page' %}";
+
+    function openDeleteModal() {
+        deleteModal.classList.remove('hidden');
+        setTimeout(() => {
+            deleteModalContent.classList.remove('scale-95', 'opacity-0');
+            deleteModalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeDeleteModal() {
+        deleteModalContent.classList.remove('scale-100', 'opacity-100');
+        deleteModalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            deleteModal.classList.add('hidden');
+        }, 300);
+    }
+
+    function confirmDeleteProfile() {
+        const btn = document.getElementById('btn-confirm-delete');
+        const originalText = btn.innerText;
+        btn.innerText = "Menghapus...";
+        btn.disabled = true;
+
+        fetch(URL_DELETE_ACTION, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect ke landing page
+                window.location.href = URL_REDIRECT_AFTER;
+            } else {
+                alert("Gagal: " + data.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+                closeDeleteModal();
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Terjadi kesalahan sistem.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+    }
+
+    deleteModal.addEventListener('click', function(e){
+        if(e.target === deleteModal) closeDeleteModal();
+    });
+</script>

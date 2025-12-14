@@ -5,73 +5,177 @@
 
 {% block content %}
 {% include 'navbar.html' %}
+
 <div class="min-h-screen bg-gray-100 flex items-center justify-center p-6">
     <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-3xl">
 
-        <!-- PROFILE SECTION -->
-        <div class="flex flex-col md:flex-row items-center md:items-start p-10 mb-8 border-b border-gray-200 gap-8">
-            
-            <!-- Kiri: Foto Profil -->
-            <div class="flex-shrink-0">
-                {% if user_profile.profile_picture %}
-                <img src="{{ user_profile.profile_picture.url }}" alt="Foto Profil {{ user_profile.display_name }}"
-                    class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-0">
-                {% else %}
-                <img src="{% static 'images/default-avatar.png' %}"
-                    class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto mb-0">
-                {% endif %}
-            </div>
+        <!-- LOADING STATE -->
+        <div id="loading-state" class="text-center py-12">
+            <p class="text-gray-500 text-lg">Memuat profil...</p>
+        </div>
 
-            <!-- Kanan: Nama, Username, Tombol -->
-            <div class="flex flex-col justify-between flex-1">
-                <!-- Nama & Username -->
-                <div class="mb-4 text-center md:text-left">
-                    <h2 class="text-4xl font-bold text-gray-800">
-                        {{ user_profile.display_name }}
-                    </h2>
-                    <p class="text-lg font-normal text-gray-500">
-                        @{{ user_profile.user.username }}
-                    </p>
+        <!-- ERROR STATE -->
+        <div id="error-state" class="hidden text-center py-12">
+            <p class="text-red-500 text-lg">Gagal memuat profil.</p>
+        </div>
+
+        <!-- PROFILE CONTENT -->
+        <div id="profile-content" class="hidden">
+
+            <!-- Foto + Nama -->
+            <div class="flex flex-col md:flex-row items-center md:items-start p-10 mb-8 border-b border-gray-200 gap-8">
+
+                <div class="flex-shrink-0">
+                    <img id="profile-picture"
+                         src="{% static 'images/default-avatar.png' %}"
+                         class="w-36 h-36 rounded-full border-4 border-white shadow-md object-cover mx-auto" />
                 </div>
 
-                <!-- Tombol Edit & Delete -->
-            </div>
-        </div>
+                <div class="flex flex-col justify-between flex-1 text-center md:text-left">
+                    <h2 id="display-name" class="text-4xl font-bold text-gray-800">Loading...</h2>
+                    <p id="username" class="text-lg font-normal text-gray-500">@---</p>
+                </div>
 
-        <!-- BIO -->
-        <div class="mb-8">
-            <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">
-                Bio
-            </h3>
-            {% if user_profile.bio %}
-            <p class="text-base text-gray-600 leading-relaxed break-words">
-                {{ user_profile.bio }}
-            </p>
-            {% else %}
-            <p class="text-base text-gray-600 leading-relaxed italic break-words">
-                Belum menulis bio.
-            </p>
-            {% endif %}
-        </div>
+                    <!-- Tombol Edit & Delete -->
+                    {% if request.user == user_profile.user %}
+                    <div class="flex justify-end gap-3">
 
-        <!-- WORKOUT FAVORIT -->
-        <div class="mb-8">
-            <h3 class="text-2xl font-semibold text-black mb-4 pb-2 border-b border-gray-100">
-                Workout Favorit
-            </h3>
-            {% if user_profile.favorite_workouts %}
-            <div class="flex flex-wrap gap-2 font-medium w-full max-w-3xl mx-auto">
-            {% for workout in user_profile.favorite_workouts.all %}
-                <span class="bg-gray-800 text-white px-4 py-3 rounded-lg text-sm font-medium">
-                    {{ workout.name }}
-                </span>
-            {% endfor %}
+                        <a href="javascript:void(0)" 
+                        onclick="openEditProfileWrapper()"
+                        class="flex-1 bg-gray-800 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg transition duration-200 text-center">
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit Profil
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            {% else %}
-            <p class="text-gray-500 italic">Belum memilih latihan favorit.</p>
+
+            
+
+            <!-- BIO -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-semibold text-black mb-3 pb-2 border-b border-gray-100">
+                    Bio
+                </h3>
+                <p id="bio" class="text-base text-gray-600 leading-relaxed break-words">
+                    Loading...
+                </p>
+            </div>
+
+            <!-- WORKOUT FAVORIT -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-semibold text-black mb-4 pb-2 border-b border-gray-100">
+                    Workout Favorit
+                </h3>
+                <div id="favorite-workouts-container" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            {% if request.user == user_profile.user %}
+            <div class="mt-12 pt-8 border-t border-gray-300 flex justify-center">
+                <a href="javascript:void(0)" 
+                    onclick="openDeleteModal()"
+                    class="bg-gray-800 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Hapus Akun
+                </a>
+            </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+{{ workout_ids|json_script:"workout-ids-data" }}
+
+<script>
+const USER_ID = "{{ user_profile.user.id }}";
+const PROFILE_ENDPOINT = "{% url 'user_profile:show_json_by_id' '0' %}".replace('0', USER_ID);
+
+const loadingState = document.getElementById("loading-state");
+const errorState = document.getElementById("error-state");
+const profileContent = document.getElementById("profile-content");
+
+const displayName = document.getElementById("display-name");
+const username = document.getElementById("username");
+const bio = document.getElementById("bio");
+const profilePicture = document.getElementById("profile-picture");
+const favoriteWorkouts = document.getElementById("favorite-workouts-container");
+
+function openEditProfileWrapper() {
+
+    const savedWorkoutIds = JSON.parse(document.getElementById('workout-ids-data').textContent);
+
+    const myProfileData = {
+        display_name: '{{ user_profile.display_name|escapejs }}',
+        bio: '{{ user_profile.bio|escapejs|default:"" }}',
+        profile_picture: '{% if user_profile.profile_picture %}{{ user_profile.profile_picture|escapejs}}{% endif %}',
+        favorite_workouts: savedWorkoutIds
+    };
+
+    // Panggil fungsi modal edit
+    openModal('edit', myProfileData);
+}
+
+function showState(state) {
+    loadingState.classList.toggle('hidden', state !== 'loading');
+    errorState.classList.toggle('hidden', state !== 'error');
+    profileContent.classList.toggle('hidden', state !== 'ready');
+}
+
+function renderProfile(p) {
+    
+    displayName.textContent = p.display_name;
+    username.textContent = "@" + p.username;
+    bio.textContent = p.bio || "Belum menulis bio.";
+
+    if (p.profile_picture)
+        profilePicture.src = p.profile_picture;
+
+    favoriteWorkouts.innerHTML = "";
+
+    if (p.favorite_workouts?.length > 0) {
+        p.favorite_workouts.forEach(w => {
+            const badge = document.createElement("span");
+            badge.className = "bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium";
+
+            badge.textContent = w.exercise_name;
+
+            favoriteWorkouts.appendChild(badge);
+        });
+    } else {
+        favoriteWorkouts.innerHTML = `
+            <p class="text-gray-500 italic">Belum memilih latihan favorit.</p>
+        `;
+    }
+}
+
+async function loadProfile() {
+    try {
+        showState("loading");
+
+        const res = await fetch(PROFILE_ENDPOINT);
+        if (!res.ok) throw new Error("Failed");
+
+        const data = await res.json();
+        renderProfile(data);
+
+        showState("ready");
+
+    } catch (err) {
+        console.error(err);
+        showState("error");
+    }
+}
+
+loadProfile();
+</script>
+
 {% include 'profile_modal.html' %}
+{% include 'delete_modal.html' %}
 {% endblock %}

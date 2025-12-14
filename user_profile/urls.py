@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from user_profile import views
 
 app_name = 'user_profile'
 
@@ -8,7 +8,10 @@ urlpatterns = [
     path('edit/', views.edit_profile, name='edit_profile'),
     path('<int:user_id>/<str:username>/', views.detail_profile, name='detail_profile'),
     path('<int:user_id>/<str:username>/delete/', views.delete_profile, name='delete_profile'),
+    path('json/', views.show_json, name='show_json'),
     path('json/<int:user_id>/', views.show_json_by_id, name='show_json_by_id'),
-    path('create/ajax/', views.create_profile_api, name='create_profile_api'),
-    path('edit/ajax/', views.edit_profile_api, name='edit_profile_api'),
+    path('create/api/', views.create_profile_api, name='create_profile_api'),
+    path('edit/api/', views.edit_profile_api, name='edit_profile_api'),
+    path('proxy-image/', views.proxy_image, name='proxy_image'),
+    path('list-workouts/', views.favorite_workouts_api, name='favorite_workouts_api'),
 ]
