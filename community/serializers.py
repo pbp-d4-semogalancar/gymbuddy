@@ -1,14 +1,17 @@
-# community/serializers.py
 from rest_framework import serializers
 from .models import Thread
 
 class ThreadSerializer(serializers.ModelSerializer):
-    # Field author_username (ReadOnlyField) mengambil dari thread.user.username
-    author_username = serializers.ReadOnlyField(source='user.username') # Menggunakan 'user'
+    author_username = serializers.ReadOnlyField(source='user.username')
+    is_mine = serializers.SerializerMethodField()
 
     class Meta:
         model = Thread
-        # Sertakan field yang dibutuhkan Flutter
-        fields = ('id', 'title', 'content', 'user', 'author_username', 'date_created')
-        # 'user' akan diisi di View
+        fields = ('id', 'title', 'content', 'user', 'author_username', 'date_created', 'is_mine')
         read_only_fields = ('user',)
+
+    def get_is_mine(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.user == request.user
+        return False

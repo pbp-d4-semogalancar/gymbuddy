@@ -15,6 +15,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated 
 from .serializers import ThreadSerializer
 from django.utils.decorators import method_decorator
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 def serialize_reply(reply, current_user):
     return {
@@ -278,19 +279,20 @@ def delete_reply_ajax(request, reply_id):
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=405)
 
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class ThreadListCreateAPIView(generics.ListCreateAPIView):
     queryset = Thread.objects.all().order_by('-date_created')
     serializer_class = ThreadSerializer
     permission_classes = []  
-
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     # Cek login manual
     def create(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return JsonResponse({
-                "detail": "You must be logged in to create a thread."
-            }, status=401)
-
+             return JsonResponse({"detail": "Login required."}, status=401)
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):

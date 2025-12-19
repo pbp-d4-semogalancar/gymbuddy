@@ -47,6 +47,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost",
     "http://10.0.2.2",
     "http://127.0.0.1",
+    "http://localhost:54044"
     
 ]
 
