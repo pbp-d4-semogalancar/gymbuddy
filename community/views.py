@@ -27,7 +27,8 @@ def serialize_reply(reply, current_user):
             "username": reply.user.username,
             "display_name": getattr(reply.user, 'user_profile', None).display_name if hasattr(reply.user, 'user_profile') else reply.user.username,
             "profile_picture": getattr(reply.user.user_profile.profile_picture, 'url', None) if hasattr(reply.user, 'user_profile') and reply.user.user_profile.profile_picture else "https://thumbs.dreamstime.com/b/default-avatar-profile-trendy-style-social-media-user-icon-187599373.jpg",
-            "time_ago": reply.date_created.strftime("%d %b %Y %H:%M")
+            "time_ago": reply.date_created.strftime("%d %b %Y %H:%M"),
+            "user_id": reply.user.id
         },
         "children": [serialize_reply(child, current_user) for child in reply.children.all().order_by('-date_created')]
     }
@@ -44,7 +45,8 @@ def api_thread_detail(request, id):
             "username": thread.user.username,
             "display_name": getattr(thread.user, 'user_profile', None).display_name if hasattr(thread.user, 'user_profile') else thread.user.username,
             "profile_picture": getattr(thread.user.user_profile.profile_picture, 'url', None) if hasattr(thread.user, 'user_profile') and thread.user.user_profile.profile_picture else "https://thumbs.dreamstime.com/b/default-avatar-profile-trendy-style-social-media-user-icon-187599373.jpg",
-            "time_ago": thread.date_created.strftime("%d %B %Y %H:%M")
+            "time_ago": thread.date_created.strftime("%d %B %Y %H:%M"),
+            "user_id": thread.user.id
         }
     }
 
