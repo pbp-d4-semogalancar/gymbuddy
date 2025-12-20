@@ -15,7 +15,7 @@
             {% if thread.user.user_profile %}
                 <a href="{% url 'user_profile:detail_profile' thread.user.id thread.user.username %}">
                     {% if thread.user.user_profile.profile_picture %}
-                        <img src="{{ thread.user.user_profile.profile_picture.url }}" 
+                        <img src="{{ thread.user.user_profile.profile_picture }}" 
                             alt="Avatar" 
                             style="width:50px; height:50px; border-radius:50%; object-fit:cover;">
                     {% else %}
